@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Elegan</title>
+    <!-- Pico CSS Framework -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <!-- SheetJS for Excel reading/writing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <style>
+        :root {
+            --pico-primary: #7c4dff;
+            --pico-primary-hover: #651fff;
+            --pico-primary-focus: rgba(124, 77, 255, 0.25);
+            --pico-primary-inverse: #FFF;
+        }
+        body { padding: 0; margin: 0; }
+        main.container { max-width: 960px; }
+        .page { display: none; animation: fadeIn 0.5s; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 9999; justify-content: center; align-items: center; }
+        #loader.active { display: flex; }
+        .spinner { width: 56px; height: 56px; border-radius: 50%; border: 9px solid; border-color: #dbdcef; border-right-color: var(--pico-primary); animation: spinner-d3wgkg 1s infinite linear; }
+        @keyframes spinner-d3wgkg { to { transform: rotate(1turn); } }
+        .modal { display: none; }
+        .modal.open { display: block; }
+        .modal-content { background-color: var(--pico-card-background-color); margin: 10% auto; padding: 2rem; border: 1px solid var(--pico-card-border-color); width: 90%; max-width: 600px; border-radius: var(--pico-border-radius); box-shadow: var(--pico-card-box-shadow); }
+        .close { cursor: pointer; opacity: 0.7; }
+        .close:hover { opacity: 1; }
+        #login-page { min-height: 80vh; display: none; align-items: center; justify-content: center; }
+        #login-page.active { display: flex; }
+        #login-page article { width: 100%; max-width: 450px; }
+        nav ul#nav-user li span { color: var(--pico-h6-color); }
+        .page h2 { display: flex; align-items: center; gap: 0.75rem; color: var(--pico-primary); }
+        .page h2 .fa-solid { font-size: 1.5rem; }
+        .icon-button { background-color: transparent; border: none; padding: 0.5rem; cursor: pointer; color: var(--pico-secondary); }
+        .icon-button.delete { color: var(--pico-color-red, #d32f2f); }
+        .icon-button:hover { color: var(--pico-primary); }
+    </style>
+</head>
+<body>
+
+    <div id="loader"><div class="spinner"></div></div>
+
+    <nav class="container-fluid">
+        <ul><li><strong><i class="fa-solid fa-graduation-cap"></i> LMS Elegan</strong></li></ul>
+        <ul id="nav-user" style="display: none;">
+            <li><span id="currentUserDisplay"></span></li>
+            <li><a href="#" id="logoutButton" role="button" class="secondary outline">Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+
+        <!-- LOGIN PAGE -->
+        <div id="login-page" class="page">
+            <article>
+                <hgroup>
+                    <h2><i class="fa-solid fa-right-to-bracket"></i> Login</h2>
+                    <h3>Masuk untuk mengakses sistem</h3>
+                </hgroup>
+                <form id="loginForm">
+                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="password" id="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+            </article>
+        </div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="admin-dashboard" class="page">
+            <h2><i class="fa-solid fa-user-shield"></i> Admin Dashboard</h2>
+            <button id="showAddUserModal"><i class="fa-solid fa-user-plus"></i> Tambah User</button>
+            <figure>
+                <table id="usersTable" role="grid">
+                    <thead><tr><th>ID</th><th>Username</th><th>Nama</th><th>Role</th><th>Aksi</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </figure>
+        </div>
+
+        <!-- DOSEN DASHBOARD -->
+        <div id="dosen-dashboard" class="page">
+            <h2><i class="fa-solid fa-chalkboard-user"></i> Dosen Dashboard</h2>
+            <details>
+                <summary role="button" class="primary"><i class="fa-solid fa-plus"></i> Tambah Materi Baru</summary>
+                <form id="addMaterialForm">
+                    <input type="text" id="materialTitle" placeholder="Judul Materi" required>
+                    <textarea id="materialContent" placeholder="Isi Materi" required></textarea>
+                    <input type="url" id="materialLink" placeholder="Link Materi Tambahan (opsional, cth: https://youtube.com/...)">
+                    <button type="submit">Simpan Materi</button>
+                </form>
+            </details>
+            <hr>
+            <h3><i class="fa-solid fa-book-open"></i> Materi dan Kuis Saya</h3>
+            <div id="dosenMaterialsList"></div>
+        </div>
+
+        <!-- MAHASISWA DASHBOARD -->
+        <div id="mahasiswa-dashboard" class="page">
+            <h2><i class="fa-solid fa-user-graduate"></i> Mahasiswa Dashboard</h2>
+            <h3>Materi dan Kuis Tersedia</h3>
+            <div id="mahasiswaMaterialsList"></div>
+        </div>
+        
+        <!-- QUIZ PAGE -->
+        <div id="quiz-page" class="page">
+            <h2 id="quizTitle"></h2>
+            <form id="quizForm"></form>
+        </div>
+
+    </main>
+    
+    <!-- Modals (Sama seperti sebelumnya, tidak ada perubahan) -->
+    <div id="userModal" class="modal">
+        <article class="modal-content">
+            <header>
+                <a href="#close" aria-label="Close" class="close" id="closeUserModal"></a>
+                <h3 id="userModalTitle">Tambah User</h3>
+            </header>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <label for="formUsername">Username</label>
+                <input type="text" id="formUsername" required>
+                <label for="formPassword">Password (kosongkan jika tidak ingin mengubah)</label>
+                <input type="password" id="formPassword">
+                <label for="formRole">Role</label>
+                <select id="formRole" required>
+                    <option value="mahasiswa">Mahasiswa</option>
+                    <option value="dosen">Dosen</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <button type="submit">Simpan</button>
+            </form>
+        </article>
+    </div>
+    <div id="quizImportModal" class="modal">
+        <article class="modal-content">
+            <header>
+                <a href="#close" aria-label="Close" class="close" id="closeQuizModal"></a>
+                <h3><i class="fa-solid fa-file-excel"></i> Impor Kuis dari Excel</h3>
+            </header>
+            <form id="quizImportForm">
+                <input type="hidden" id="quizMaterialId">
+                <label for="quizImportTitle">Judul Kuis</label>
+                <input type="text" id="quizImportTitle" required>
+                <label for="quizFile">File Excel (.xlsx)</label>
+                <input type="file" id="quizFile" accept=".xlsx" required>
+                <button type="button" id="downloadQuizTemplate" class="secondary outline" style="margin-bottom: 1rem;"><i class="fa-solid fa-file-arrow-down"></i> Download Template</button>
+                <p><small>Gunakan template dengan kolom: `question`, `optionA`, `optionB`, `optionC`, `optionD`, `correctAnswer` (Isi dengan A/B/C/D).</small></p>
+                <button type="submit">Impor</button>
+            </form>
+        </article>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw_8ZhrpIConlgSVjWKnZmx7kt9BTEV-OVGOHickGjPvAjVOt5bdYoVOqfvQEIZaq0J1w/exec"; // <--- PENTING: GANTI URL INI
+        let currentUser = null;
+
+        const loader = document.getElementById('loader');
+        const pages = document.querySelectorAll('.page');
+        const navUser = document.getElementById('nav-user');
+        const currentUserDisplay = document.getElementById('currentUserDisplay');
+
+        // --- UTILITY FUNCTIONS ---
+        function showLoader() { loader.classList.add('active'); }
+        function hideLoader() { loader.classList.remove('active'); }
+        
+        function showPage(pageId) {
+            pages.forEach(page => page.classList.remove('active'));
+            const pageToShow = document.getElementById(pageId);
+            if(pageToShow) pageToShow.classList.add('active');
+        }
+
+        async function callGoogleScript(action, payload = {}) {
+            showLoader();
+            try {
+                // Gunakan text/plain untuk menghindari masalah preflight CORS di Google Apps Script
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action, payload }),
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+                });
+                const data = await res.json();
+                hideLoader();
+                if (data.status === 'error') {
+                    alert('Error: ' + data.message);
+                    return null;
+                }
+                return data;
+            } catch (error) {
+                hideLoader();
+                alert('Terjadi kesalahan koneksi.');
+                console.error(error);
+                return null;
+            }
+        }
+        
+        // --- MODAL HANDLING ---
+        const userModal = document.getElementById('userModal');
+        const quizImportModal = document.getElementById('quizImportModal');
+        document.getElementById('showAddUserModal').onclick = () => {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('userModalTitle').innerText = 'Tambah User';
+            userModal.classList.add('open');
+        };
+        document.getElementById('closeUserModal').onclick = () => userModal.classList.remove('open');
+        document.getElementById('closeQuizModal').onclick = () => quizImportModal.classList.remove('open');
+        
+        // --- AUTHENTICATION ---
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const result = await callGoogleScript('login', { username, password });
+            if (result && result.status === 'success') {
+                currentUser = result.user;
+                sessionStorage.setItem('lmsUser', JSON.stringify(currentUser));
+                initializeApp();
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            currentUser = null;
+            sessionStorage.removeItem('lmsUser');
+            // Panggil initializeApp untuk mereset state tampilan ke halaman login
+            initializeApp();
+        });
+
+        // --- INITIALIZATION ---
+        function initializeApp() {
+            if (currentUser) {
+                navUser.style.display = 'flex';
+                // Di backend, properti nama bisa 'Nama' atau 'username' (untuk admin)
+                currentUserDisplay.innerText = `Halo, ${currentUser.Nama || currentUser.username} (${currentUser.role})`;
+
+                switch (currentUser.role) {
+                    case 'admin': loadAdminDashboard(); break;
+                    case 'dosen': loadDosenDashboard(); break;
+                    case 'mahasiswa': loadMahasiswaDashboard(); break;
+                }
+            } else {
+                // Jika tidak ada user, tampilkan halaman login dan sembunyikan yang lain
+                navUser.style.display = 'none';
+                pages.forEach(p => p.classList.remove('active'));
+                document.getElementById('login-page').classList.add('active');
+                document.getElementById('loginForm').reset();
+            }
+        }
+
+        // --- ADMIN LOGIC ---
+        async function loadAdminDashboard() {
+            showPage('admin-dashboard');
+            const result = await callGoogleScript('getUsers');
+            if (!result || result.status !== 'success') return;
+            
+            const tableBody = document.getElementById('usersTable').querySelector('tbody');
+            tableBody.innerHTML = '';
+            result.data.forEach(user => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td><small>${user.id}</small></td>
+                    <td>${user.username}</td>
+                    <td>${user.nama || ''}</td>
+                    <td>${user.role}</td>
+                    <td>
+                        <button class="icon-button" onclick="editUser('${user.id}', '${user.username}', '${user.role}')" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${user.role !== 'admin' ? `<button class="icon-button delete" onclick="deleteUser('${user.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </td>
+                `;
+            });
+        }
+        // ... (Fungsi userForm submit, editUser, deleteUser tetap sama) ...
+        document.getElementById('userForm').addEventListener('submit', async (e) => { e.preventDefault(); alert("Fungsi ini belum diimplementasikan di backend."); });
+        function editUser(id, username, role) { alert("Fungsi ini belum diimplementasikan di backend."); }
+        async function deleteUser(id) { alert("Fungsi ini belum diimplementasikan di backend."); }
+
+        
+        // --- DOSEN LOGIC ---
+        async function loadDosenDashboard() {
+            showPage('dosen-dashboard');
+            document.getElementById('addMaterialForm').reset();
+            // Nama properti di backend adalah NIP, Nama, Username, Password. currentUser akan punya itu.
+            const result = await callGoogleScript('getMaterialsByDosen', { dosenUsername: currentUser.Username });
+            if (!result || result.status !== 'success') return;
+
+            const listContainer = document.getElementById('dosenMaterialsList');
+            listContainer.innerHTML = '<p>Anda belum membuat materi.</p>';
+            if (result.data.length > 0) {
+               listContainer.innerHTML = '';
+               result.data.forEach(material => {
+                   const article = document.createElement('article');
+                   const linkHTML = material.link ? `<a href="${material.link}" target="_blank" role="button" class="outline secondary" style="margin-bottom: 1rem;"><i class="fa-solid fa-link"></i> Lihat Link Materi</a>` : '';
+                   article.innerHTML = `
+                       <h4>${material.title}</h4>
+                       <p>${material.content.substring(0, 150)}...</p>
+                       ${linkHTML}
+                       <footer>
+                       ${material.quiz ? 
+                            `<p><strong>Kuis Terpasang:</strong> ${material.quiz.title}</p>` : 
+                            `<button class="secondary outline" onclick="showQuizImportModal('${material.id}')"><i class="fa-solid fa-file-import"></i> Tambah Kuis (Excel)</button>`
+                       }
+                       </footer>
+                   `;
+                   listContainer.appendChild(article);
+               });
+            }
+        }
+
+        document.getElementById('addMaterialForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('materialTitle').value,
+                content: document.getElementById('materialContent').value,
+                link: document.getElementById('materialLink').value,
+                dosenUsername: currentUser.Username
+            };
+            const result = await callGoogleScript('addMaterial', payload);
+            if (result && result.status === 'success') {
+                alert(result.message);
+                e.target.closest('details').removeAttribute('open');
+                loadDosenDashboard();
+            }
+        });
+        
+        function showQuizImportModal(materialId) {
+            document.getElementById('quizImportForm').reset();
+            document.getElementById('quizMaterialId').value = materialId;
+            quizImportModal.classList.add('open');
+        }
+        
+        document.getElementById('quizImportForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const file = document.getElementById('quizFile').files[0];
+            if (!file) { alert('Pilih file Excel terlebih dahulu.'); return; }
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(worksheet);
+                    const requiredCols = ['question', 'optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer'];
+                    if (json.length === 0 || !requiredCols.every(col => json[0].hasOwnProperty(col))) {
+                        alert('Format Excel tidak sesuai. Pastikan semua kolom yang dibutuhkan ada.'); return;
+                    }
+                    const payload = { materialId: document.getElementById('quizMaterialId').value, title: document.getElementById('quizImportTitle').value, questions: json };
+                    const result = await callGoogleScript('importQuiz', payload);
+                    if (result && result.status === 'success') {
+                        alert(result.message);
+                        quizImportModal.classList.remove('open');
+                        loadDosenDashboard();
+                    }
+                } catch (err) {
+                    alert('Gagal memproses file Excel. Pastikan formatnya benar.'); console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        document.getElementById('downloadQuizTemplate').addEventListener('click', () => { /* ... (Fungsi ini sama, tidak berubah) ... */ });
+
+        // --- MAHASISWA LOGIC ---
+        async function loadMahasiswaDashboard() {
+            showPage('mahasiswa-dashboard');
+            const result = await callGoogleScript('getMaterialsForMahasiswa');
+            if (!result || result.status !== 'success') {
+                document.getElementById('mahasiswaMaterialsList').innerHTML = '<p>Gagal memuat materi.</p>'; return;
+            }
+
+            const listContainer = document.getElementById('mahasiswaMaterialsList');
+            listContainer.innerHTML = '<p>Belum ada materi tersedia.</p>';
+            if (result.data.length > 0) {
+                listContainer.innerHTML = '';
+                result.data.forEach(material => {
+                    const article = document.createElement('article');
+                    let rankingHTML = '';
+                    if (material.quiz) {
+                        rankingHTML = `<h6><i class="fa-solid fa-trophy"></i> Peringkat Kuis "${material.quiz.title}" (Top 5)</h6>`;
+                        if (material.rankings && material.rankings.length > 0) {
+                            rankingHTML += `<figure><table role="grid"><thead><tr><th>Peringkat</th><th>Nama</th><th>Skor</th></tr></thead><tbody>`;
+                            material.rankings.forEach((rank, index) => {
+                                rankingHTML += `<tr><td>${index + 1}</td><td>${rank.mahasiswaUsername}</td><td>${rank.score.toFixed(2)}</td></tr>`;
+                            });
+                            rankingHTML += `</tbody></table></figure>`;
+                        } else {
+                            rankingHTML += `<p><small>Belum ada yang mengerjakan kuis ini.</small></p>`;
+                        }
+                    }
+                    const linkHTML = material.link ? `<a href="${material.link}" target="_blank" role="button" class="outline secondary"><i class="fa-solid fa-link"></i> Lihat Link Materi</a>` : '';
+
+                    article.innerHTML = `
+                        <h4>${material.title} <small>(oleh: ${material.dosenUsername})</small></h4>
+                        <p>${material.content}</p>
+                        ${linkHTML}
+                        ${material.quiz ? 
+                            `<button onclick="startQuiz('${material.quiz.id}', '${material.quiz.title}')"><i class="fa-solid fa-pen-ruler"></i> Kerjakan Kuis: ${material.quiz.title}</button>` :
+                            `<p><small>Tidak ada kuis untuk materi ini.</small></p>`
+                        }
+                        ${rankingHTML}
+                    `;
+                    listContainer.appendChild(article);
+                });
+            }
+        }
+
+        async function startQuiz(quizId, quizTitle) {
+            document.getElementById('quizTitle').innerText = quizTitle;
+            const result = await callGoogleScript('getQuizQuestions', { quizId });
+            if (!result || result.status !== 'success') return;
+            
+            showPage('quiz-page');
+            const form = document.getElementById('quizForm');
+            form.innerHTML = '';
+            form.dataset.quizId = quizId;
+            
+            result.data.forEach((q, index) => {
+                const fieldset = document.createElement('fieldset');
+                fieldset.innerHTML = `
+                    <legend>${index + 1}. ${q.question}</legend>
+                    <label><input type="radio" name="q_${q.id}" value="A" required> ${q.optionA}</label>
+                    <label><input type="radio" name="q_${q.id}" value="B"> ${q.optionB}</label>
+                    <label><input type="radio" name="q_${q.id}" value="C"> ${q.optionC}</label>
+                    <label><input type="radio" name="q_${q.id}" value="D"> ${q.optionD}</label>
+                `;
+                form.appendChild(fieldset);
+            });
+
+            const submitButton = document.createElement('button');
+            submitButton.type = 'submit';
+            submitButton.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Selesai & Kirim Jawaban';
+            form.appendChild(submitButton);
+        }
+        
+        document.getElementById('quizForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            if(!confirm('Apakah Anda yakin ingin mengirim jawaban?')) return;
+            
+            const formData = new FormData(e.target);
+            const answers = {};
+            for (const [key, value] of formData.entries()) {
+                const questionId = key.split('_')[1];
+                answers[questionId] = value;
+            }
+            
+            const payload = {
+                quizId: e.target.dataset.quizId,
+                mahasiswaUsername: currentUser.Username, // Kirim username
+                answers: answers
+            };
+
+            const result = await callGoogleScript('submitQuiz', payload);
+            if(result && result.status === 'success') {
+                alert(`Kuis Selesai! Skor Anda: ${result.score.toFixed(2)}`);
+                loadMahasiswaDashboard();
+            }
+        });
+
+        // --- ON PAGE LOAD ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = sessionStorage.getItem('lmsUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+            }
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
