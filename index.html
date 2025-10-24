@@ -4,47 +4,174 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LMS Gamifikasi Mahasiswa</title>
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- SheetJS for Excel Upload -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        :root {
+            --primary-color: #00684A; /* Poltekkes Green */
+            --secondary-color: #00AAB5; /* Teal Accent */
+            --light-bg: #f9fafb;
+            --card-border-radius: 0.75rem;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+        }
+
         /* Sembunyikan semua view secara default */
         .view {
             display: none;
         }
-        body {
-            background-color: #f8f9fa;
-        }
+
+        /* Custom Styles */
         .card {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: none;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .leaderboard-badge {
-            font-size: 1rem;
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
-        .stat-card h3 {
-            font-size: 2.5rem;
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
         }
+        .btn-primary:hover {
+            background-color: #004d37;
+            border-color: #004d37;
+        }
+        
+        .btn-success {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            font-weight: 500;
+        }
+        .btn-success:hover {
+            background-color: #008a94;
+            border-color: #008a94;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Login & Leaderboard Specific */
+        #login-view .brand-logo {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        #leaderboardList .list-group-item {
+            border-left: 4px solid transparent;
+            transition: all 0.2s ease;
+        }
+        #leaderboardList .list-group-item:nth-child(1) { border-left-color: #ffd700; } /* Gold */
+        #leaderboardList .list-group-item:nth-child(2) { border-left-color: #c0c0c0; } /* Silver */
+        #leaderboardList .list-group-item:nth-child(3) { border-left-color: #cd7f32; } /* Bronze */
+
+        .leaderboard-badge { font-size: 1rem; }
+        #leaderboardList li:nth-child(1) .leaderboard-badge { background-color: #ffd700 !important; color: #333; }
+        #leaderboardList li:nth-child(2) .leaderboard-badge { background-color: #c0c0c0 !important; color: #333; }
+        #leaderboardList li:nth-child(3) .leaderboard-badge { background-color: #cd7f32 !important; }
+
+
+        /* Admin Dashboard Specific */
+        .stat-card {
+            display: flex;
+            align-items: center;
+            padding: 1.25rem;
+        }
+        .stat-card .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-right: 1.25rem;
+        }
+        .stat-card .stat-text h3 {
+            font-size: 2.2rem;
+            margin-bottom: 0;
+            color: #333;
+        }
+        .stat-card .stat-text p {
+            margin-bottom: 0;
+            color: #6c757d;
+        }
+        .icon-primary { background-color: rgba(0, 104, 74, 0.1); color: var(--primary-color); }
+        .icon-success { background-color: rgba(0, 170, 181, 0.1); color: var(--secondary-color); }
+        .icon-info { background-color: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+        .icon-warning { background-color: rgba(255, 193, 7, 0.1); color: #ffc107; }
+
+        /* Dosen & Mahasiswa List Items */
+        .list-group-item-action:hover {
+            background-color: #e9f5f3;
+            border-left: 4px solid var(--primary-color);
+            transform: translateX(5px);
+        }
+        .list-group-item {
+             transition: all 0.2s ease;
+             border-left: 4px solid transparent;
+        }
+        .excel-upload-box {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            padding: 1.5rem;
+            border-radius: var(--card-border-radius);
+            text-align: center;
+        }
+
+        /* Kuis View */
+        #kuis-view .card {
+            background-color: #fff;
+        }
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
     </style>
 </head>
 <body>
 
-<div class="container mt-4">
+<main class="container my-4 my-lg-5">
 
     <!-- =================================================================== -->
     <!-- VIEW 1: HALAMAN LOGIN & LEADERBOARD (HALAMAN UTAMA)                 -->
     <!-- =================================================================== -->
     <div id="login-view" class="view">
-        <div class="text-center mb-4">
-            <h1 class="display-5">Selamat Datang di LMS Gamifikasi</h1>
-            <p class="lead">Masuk untuk memulai petualangan belajar Anda!</p>
+        <div class="text-center mb-5">
+            <div class="brand-logo"><i class="bi bi-mortarboard-fill"></i></div>
+            <h1 class="display-5">LMS Gamifikasi Poltekkes</h1>
+            <p class="lead text-muted">Masuk untuk memulai petualangan belajar Anda!</p>
         </div>
-        <div class="row justify-content-center">
+        <div class="row justify-content-center g-4">
             <div class="col-lg-7">
-                 <div class="card mb-4">
+                 <div class="card p-2">
                     <div class="card-body">
-                        <h3 class="card-title text-center mb-4">🏆 Papan Peringkat Mahasiswa 🏆</h3>
+                        <h3 class="card-title text-center mb-4"><i class="bi bi-trophy-fill text-warning"></i> Papan Peringkat Teratas</h3>
                         <ol id="leaderboardList" class="list-group list-group-numbered">
                             <li class="list-group-item">Memuat data peringkat...</li>
                         </ol>
@@ -53,18 +180,20 @@
             </div>
             <div class="col-lg-5">
                 <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title text-center">Login</h2>
+                    <div class="card-body p-4 p-lg-5">
+                        <h2 class="card-title text-center mb-4">Login Pengguna</h2>
                         <form id="loginForm">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" required>
+                                <input type="email" class="form-control form-control-lg" id="email" placeholder="contoh@email.com" required>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" required>
+                                <input type="password" class="form-control form-control-lg" id="password" placeholder="******" required>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </button>
                             <div id="loginError" class="alert alert-danger mt-3 d-none"></div>
                         </form>
                     </div>
@@ -77,75 +206,83 @@
     <!-- VIEW 2: DASHBOARD ADMIN                                             -->
     <!-- =================================================================== -->
     <div id="admin-view" class="view">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded mb-4">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white rounded-3 mb-4 p-3 shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Admin Panel</a>
-                <button id="logoutButtonAdmin" class="btn btn-danger">Logout</button>
+                <a class="navbar-brand" href="#"><i class="bi bi-shield-lock-fill"></i> Panel Admin</a>
+                <button id="logoutButtonAdmin" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </div>
         </nav>
         
-        <!-- Admin Progress Dashboard -->
-        <h4><i class="bi bi-graph-up"></i> Progress LMS</h4>
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card text-white bg-primary text-center stat-card">
-                    <div class="card-body">
-                        <h3><i class="bi bi-people-fill"></i> <span id="totalMahasiswaStat">0</span></h3>
-                        <p class="card-text">Total Mahasiswa</p>
+        <h4><i class="bi bi-graph-up-arrow"></i> Ringkasan Sistem</h4>
+        <div class="row mb-4 g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="icon-circle icon-primary"><i class="bi bi-people-fill"></i></div>
+                    <div class="stat-text">
+                        <h3 id="totalMahasiswaStat">0</h3><p>Total Mahasiswa</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-success text-center stat-card">
-                    <div class="card-body">
-                        <h3><i class="bi bi-person-video3"></i> <span id="totalDosenStat">0</span></h3>
-                        <p class="card-text">Total Dosen</p>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="icon-circle icon-success"><i class="bi bi-person-video3"></i></div>
+                    <div class="stat-text">
+                        <h3 id="totalDosenStat">0</h3><p>Total Dosen</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-info text-center stat-card">
-                    <div class="card-body">
-                        <h3><i class="bi bi-book-fill"></i> <span id="totalMateriStat">0</span></h3>
-                        <p class="card-text">Total Materi</p>
+            <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="icon-circle icon-info"><i class="bi bi-book-fill"></i></div>
+                    <div class="stat-text">
+                        <h3 id="totalMateriStat">0</h3><p>Total Materi</p>
                     </div>
                 </div>
             </div>
-             <div class="col-md-3">
-                <div class="card text-white bg-warning text-center stat-card">
-                    <div class="card-body">
-                        <h3><i class="bi bi-patch-question-fill"></i> <span id="totalKuisStat">0</span></h3>
-                        <p class="card-text">Total Kuis</p>
+             <div class="col-md-6 col-lg-3">
+                <div class="card stat-card">
+                    <div class="icon-circle icon-warning"><i class="bi bi-patch-question-fill"></i></div>
+                    <div class="stat-text">
+                        <h3 id="totalKuisStat">0</h3><p>Total Kuis</p>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-activity"></i> Aktivitas Pengerjaan Kuis Terbaru</h5>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead><tr><th>Mahasiswa</th><th>Kuis</th><th>Skor</th><th>Waktu</th></tr></thead>
-                        <tbody id="recentSubmissionsTable">
-                            <tr><td colspan="4">Memuat aktivitas...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- End Admin Progress Dashboard -->
 
-        <h4><i class="bi bi-person-gear"></i> Manajemen Pengguna</h4>
-        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="prepareUserModal('new')">
-            <i class="bi bi-plus-circle"></i> Tambah Pengguna
-        </button>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr><th>Nama</th><th>Email</th><th>Role</th><th>NIM/NIDN</th><th>Aksi</th></tr>
-                </thead>
-                <tbody id="userTableBody"></tbody>
-            </table>
+        <div class="row g-4">
+            <div class="col-lg-7">
+                 <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="bi bi-person-gear"></i> Manajemen Pengguna</h5>
+                        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="prepareUserModal('new')">
+                            <i class="bi bi-plus-circle"></i> Tambah Pengguna
+                        </button>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr><th>Nama</th><th>Email</th><th>Role</th><th>NIM/NIDN</th><th>Aksi</th></tr>
+                                </thead>
+                                <tbody id="userTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                 <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="bi bi-activity"></i> Aktivitas Pengerjaan Kuis Terbaru</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th>Mahasiswa</th><th>Kuis</th><th>Skor</th></tr></thead>
+                                <tbody id="recentSubmissionsTable">
+                                    <tr><td colspan="3">Memuat aktivitas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -153,21 +290,21 @@
     <!-- VIEW 3: DASHBOARD DOSEN                                             -->
     <!-- =================================================================== -->
     <div id="dosen-view" class="view">
-        <nav class="navbar navbar-dark bg-success rounded mb-4">
+        <nav class="navbar navbar-light bg-white rounded-3 mb-4 p-3 shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Dosen Panel</a>
-                <span class="navbar-text text-white me-auto ms-4" id="dosenWelcome"></span>
-                <button id="logoutButtonDosen" class="btn btn-light">Logout</button>
+                <a class="navbar-brand" href="#"><i class="bi bi-person-workspace"></i> Panel Dosen</a>
+                <span class="navbar-text text-muted me-auto ms-4" id="dosenWelcome"></span>
+                <button id="logoutButtonDosen" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </div>
         </nav>
-        <div class="row">
+        <div class="row g-4">
             <!-- Kolom Materi -->
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Manajemen Materi</h4>
-                        <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#materiModal">
-                            <i class="bi bi-file-earmark-plus"></i> Tambah Materi
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-4"><i class="bi bi-journal-text"></i> Manajemen Materi</h4>
+                        <button class="btn btn-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#materiModal">
+                            <i class="bi bi-file-earmark-plus"></i> Tambah Materi Baru
                         </button>
                         <div id="materiListDosen" class="list-group"></div>
                     </div>
@@ -175,23 +312,25 @@
             </div>
             <!-- Kolom Kuis -->
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Manajemen Kuis</h4>
-                        <button class="btn btn-info mb-3" data-bs-toggle="modal" data-bs-target="#kuisModal" onclick="prepareKuisModal()">
-                           <i class="bi bi-patch-question"></i> Buat Kuis Manual
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-4"><i class="bi bi-controller"></i> Manajemen Kuis</h4>
+                        <button class="btn btn-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#kuisModal" onclick="prepareKuisModal()">
+                           <i class="bi bi-pencil-square"></i> Buat Kuis Manual
                         </button>
-                        <hr>
-                        <p class="mb-1">Atau, upload soal dari file Excel:</p>
-                        <div class="input-group">
-                             <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls">
-                             <button class="btn btn-outline-success" type="button" id="uploadExcelBtn">Upload</button>
+                        <div class="excel-upload-box">
+                            <p class="mb-2">Atau, upload soal dari file Excel:</p>
+                            <div class="input-group">
+                                 <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls">
+                                 <button class="btn btn-outline-primary" type="button" id="uploadExcelBtn"><i class="bi bi-upload"></i> Upload</button>
+                            </div>
+                             <small class="form-text text-muted mt-2 d-block">
+                                Pastikan format sesuai. <a href="#" id="downloadTemplateLink" class="fw-bold">Download Template</a>.
+                            </small>
                         </div>
-                         <small class="form-text text-muted">
-                            Pastikan format sesuai. <a href="#" id="downloadTemplateLink">Download Template Excel</a>.
-                        </small>
                         <hr>
-                        <div id="kuisListDosen" class="list-group"></div>
+                        <h6>Daftar Kuis Dibuat:</h6>
+                        <div id="kuisListDosen" class="list-group mt-3"></div>
                     </div>
                 </div>
             </div>
@@ -202,26 +341,26 @@
     <!-- VIEW 4: DASHBOARD MAHASISWA                                         -->
     <!-- =================================================================== -->
     <div id="mahasiswa-view" class="view">
-        <nav class="navbar navbar-dark bg-primary rounded mb-4">
+        <nav class="navbar navbar-light bg-white rounded-3 mb-4 p-3 shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Dashboard Mahasiswa</a>
-                 <span class="navbar-text text-white me-auto ms-4" id="mahasiswaWelcome"></span>
-                <button id="logoutButtonMahasiswa" class="btn btn-light">Logout</button>
+                <a class="navbar-brand" href="#"><i class="bi bi-easel2-fill"></i> Dashboard Mahasiswa</a>
+                 <span class="navbar-text text-primary me-auto ms-4" id="mahasiswaWelcome"></span>
+                <button id="logoutButtonMahasiswa" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </div>
         </nav>
-         <div class="row">
+         <div class="row g-4">
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">📚 Materi Perkuliahan</h4>
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-4">📚 Materi Perkuliahan</h4>
                         <div id="materiListMahasiswa" class="list-group"></div>
                     </div>
                 </div>
             </div>
              <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">🚀 Kuis & Tantangan</h4>
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-4">🚀 Kuis & Tantangan</h4>
                         <div id="kuisListMahasiswa" class="list-group"></div>
                     </div>
                 </div>
@@ -233,18 +372,18 @@
     <!-- VIEW 5: HALAMAN MENGERJAKAN KUIS                                    -->
     <!-- =================================================================== -->
     <div id="kuis-view" class="view">
-        <nav class="navbar mb-4">
-            <div class="container-fluid">
-                 <button class="btn btn-secondary" onclick="showView('mahasiswa-view')"><i class="bi bi-arrow-left"></i> Kembali</button>
-                 <h3 id="kuisTitle"></h3>
-                 <span></span>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex justify-content-between align-items-center p-3">
+                 <button class="btn btn-outline-secondary" onclick="showView('mahasiswa-view')"><i class="bi bi-arrow-left"></i> Kembali</button>
+                 <h3 id="kuisTitle" class="mb-0"></h3>
+                 <span class="badge bg-primary p-2">Semangat!</span>
             </div>
-        </nav>
+        </div>
         <div id="kuisQuestionContainer"></div>
-        <button class="btn btn-primary w-100 mt-4" id="submitKuisBtn">Selesai & Kumpulkan Jawaban</button>
+        <button class="btn btn-primary btn-lg w-100 mt-4" id="submitKuisBtn"><i class="bi bi-check2-circle"></i> Selesai & Kumpulkan Jawaban</button>
     </div>
 
-</div> <!-- End .container -->
+</main> <!-- End .container -->
 
 
 <!-- =================================================================== -->
@@ -253,8 +392,8 @@
 
 <!-- Modal User (Admin) -->
 <div class="modal fade" id="userModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--card-border-radius);">
             <div class="modal-header">
                 <h5 class="modal-title" id="userModalLabel">Tambah Pengguna</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -285,7 +424,7 @@
                             <option value="dosen">Dosen</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save"></i> Simpan</button>
                 </form>
             </div>
         </div>
@@ -294,8 +433,8 @@
 
 <!-- Modal Materi (Dosen) -->
 <div class="modal fade" id="materiModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--card-border-radius);">
             <div class="modal-header">
                 <h5 class="modal-title">Tambah/Edit Materi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -311,7 +450,7 @@
                         <label class="form-label">Isi Materi</label>
                         <textarea id="materiIsi" class="form-control" rows="10" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Simpan Materi</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Simpan Materi</button>
                 </form>
             </div>
         </div>
@@ -320,8 +459,8 @@
 
 <!-- Modal Kuis (Dosen) -->
 <div class="modal fade" id="kuisModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--card-border-radius);">
             <div class="modal-header">
                 <h5 class="modal-title">Buat Kuis Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -337,11 +476,11 @@
                     <div id="questionsContainer">
                         <!-- Pertanyaan akan ditambahkan di sini oleh JS -->
                     </div>
-                    <button type="button" class="btn btn-outline-secondary mt-2" onclick="addQuestionField()">
+                    <button type="button" class="btn btn-outline-success mt-2" onclick="addQuestionField()">
                         <i class="bi bi-plus-lg"></i> Tambah Pertanyaan
                     </button>
                     <hr>
-                    <button type="submit" class="btn btn-primary">Simpan Kuis</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Simpan Kuis</button>
                 </form>
             </div>
         </div>
@@ -350,13 +489,13 @@
 
 <!-- Modal Baca Materi (Mahasiswa) -->
 <div class="modal fade" id="bacaMateriModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content" style="border-radius: var(--card-border-radius);">
             <div class="modal-header">
                 <h5 class="modal-title" id="bacaMateriJudul"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="bacaMateriIsi"></div>
+            <div class="modal-body" id="bacaMateriIsi" style="white-space: pre-wrap;"></div>
         </div>
     </div>
 </div>
@@ -398,15 +537,15 @@
     // KONFIGURASI FIREBASE                                              
     // ===================================================================
     // TODO: GANTI DENGAN KONFIGURASI FIREBASE ANDA SENDIRI
-const firebaseConfig = {
-  apiKey: "AIzaSyBRESh5Mbo15ttJzBeBokgB6qz4zSemHuw",
-  authDomain: "lisa-levesquerez204.firebaseapp.com",
-  databaseURL: "https://lisa-levesquerez204.firebaseio.com",
-  projectId: "lisa-levesquerez204",
-  storageBucket: "lisa-levesquerez204.firebasestorage.app",
-  messagingSenderId: "320775541227",
-  appId: "1:320775541227:web:041c60b324aee5044249ae"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyBRESh5Mbo15ttJzBeBokgB6qz4zSemHuw",
+      authDomain: "lisa-levesquerez204.firebaseapp.com",
+      databaseURL: "https://lisa-levesquerez204.firebaseio.com",
+      projectId: "lisa-levesquerez204",
+      storageBucket: "lisa-levesquerez204.firebasestorage.app",
+      messagingSenderId: "320775541227",
+      appId: "1:320775541227:web:041c60b324aee5044249ae"
+    };
 
     // Inisialisasi Firebase
     const app = initializeApp(firebaseConfig);
@@ -454,7 +593,7 @@ const firebaseConfig = {
                         break;
                     case 'mahasiswa':
                         showView('mahasiswa-view');
-                        document.getElementById('mahasiswaWelcome').innerText = `Hai ${currentUserData.nama}, Poin Kamu: ${currentUserData.totalSkor || 0}`;
+                        document.getElementById('mahasiswaWelcome').innerHTML = `<i class="bi bi-gem"></i> Poin Kamu: <strong>${currentUserData.totalSkor || 0}</strong>`;
                         loadMahasiswaContent();
                         break;
                     default:
@@ -478,6 +617,9 @@ const firebaseConfig = {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const loginError = document.getElementById('loginError');
+        const loginButton = e.target.querySelector('button[type="submit"]');
+        loginButton.disabled = true;
+        loginButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...`;
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
@@ -485,6 +627,9 @@ const firebaseConfig = {
         } catch (error) {
             loginError.textContent = "Email atau password salah!";
             loginError.classList.remove('d-none');
+        } finally {
+            loginButton.disabled = false;
+            loginButton.innerHTML = `<i class="bi bi-box-arrow-in-right"></i> Login`;
         }
     });
 
@@ -504,28 +649,37 @@ const firebaseConfig = {
                 collection(db, "users"),
                 where("role", "==", "mahasiswa"),
                 orderBy("totalSkor", "desc"),
-                limit(10)
+                limit(5) // Tampilkan 5 teratas
             );
             const querySnapshot = await getDocs(q);
             leaderboardList.innerHTML = '';
             if (querySnapshot.empty) {
-                leaderboardList.innerHTML = '<li class="list-group-item">Belum ada data peringkat.</li>';
+                leaderboardList.innerHTML = '<li class="list-group-item text-muted">Belum ada data peringkat.</li>';
                 return;
             }
+            let rank = 1;
             querySnapshot.forEach(doc => {
                 const user = doc.data();
+                let medalIcon = '';
+                if(rank === 1) medalIcon = '<i class="bi bi-trophy-fill text-warning me-2"></i>';
+                else if (rank === 2) medalIcon = '<i class="bi bi-trophy-fill text-secondary me-2" style="color: #c0c0c0 !important;"></i>';
+                else if (rank === 3) medalIcon = '<i class="bi bi-trophy-fill text-danger me-2" style="color: #cd7f32 !important;"></i>';
+
                 leaderboardList.innerHTML += `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="fw-bold">${user.nama}</div>
-                            <small class="text-muted">NIM: ${user.nim_nidn}</small>
+                            ${medalIcon}
+                            <span class="fw-bold">${user.nama}</span>
+                            <br>
+                            <small class="text-muted ms-4">NIM: ${user.nim_nidn}</small>
                         </div>
                         <span class="badge bg-primary rounded-pill leaderboard-badge">${user.totalSkor || 0} Poin</span>
                     </li>`;
+                rank++;
             });
         } catch (error) {
             console.error("Error loading leaderboard: ", error);
-            leaderboardList.innerHTML = '<li class="list-group-item">Gagal memuat data. Periksa aturan keamanan Firestore.</li>';
+            leaderboardList.innerHTML = '<li class="list-group-item text-danger">Gagal memuat data.</li>';
         }
     }
 
@@ -557,18 +711,15 @@ const firebaseConfig = {
         const submissionsSnapshot = await getDocs(submissionsQuery);
         submissionsTable.innerHTML = '';
         if (submissionsSnapshot.empty) {
-            submissionsTable.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada aktivitas.</td></tr>';
+            submissionsTable.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Belum ada aktivitas.</td></tr>';
             return;
         }
         submissionsSnapshot.forEach(doc => {
             const sub = doc.data();
-            const submissionDate = sub.timestamp.toDate().toLocaleString('id-ID');
             submissionsTable.innerHTML += `
                 <tr>
-                    <td>${sub.mahasiswaNama}</td>
-                    <td>${sub.kuisJudul}</td>
-                    <td><span class="badge bg-info">${sub.skorDapat} / ${sub.totalSoal} (${sub.skorPersen}%)</span></td>
-                    <td>${submissionDate}</td>
+                    <td>${sub.mahasiswaNama}<br><small class="text-muted">${sub.kuisJudul}</small></td>
+                    <td><span class="badge bg-info">${sub.skorPersen}%</span></td>
                 </tr>
             `;
         });
@@ -588,7 +739,7 @@ const firebaseConfig = {
     // Muat semua user ke tabel
     async function loadUsers() {
         const userTableBody = document.getElementById('userTableBody');
-        userTableBody.innerHTML = '<tr><td colspan="5">Memuat...</td></tr>';
+        userTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Memuat...</td></tr>';
         const q = query(collection(db, "users"), where("role", "!=", "admin"));
         const querySnapshot = await getDocs(q);
         userTableBody.innerHTML = '';
@@ -596,12 +747,12 @@ const firebaseConfig = {
             const user = doc.data();
             userTableBody.innerHTML += `
                 <tr>
-                    <td>${user.nama}</td>
+                    <td><strong>${user.nama}</strong></td>
                     <td>${user.email}</td>
-                    <td><span class="badge bg-${user.role === 'dosen' ? 'success' : 'info'}">${user.role}</span></td>
+                    <td><span class="badge rounded-pill text-bg-${user.role === 'dosen' ? 'success' : 'info'}">${user.role}</span></td>
                     <td>${user.nim_nidn}</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${doc.id}', '${user.nama}')"><i class="bi bi-trash"></i> Hapus</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${doc.id}', '${user.nama}')"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
             `;
@@ -643,6 +794,8 @@ const firebaseConfig = {
     window.deleteUser = async function(userId, userName) {
         if (confirm(`Apakah Anda yakin ingin menghapus ${userName}? Aksi ini tidak dapat dibatalkan.`)) {
             try {
+                // NOTE: Deleting a user from Firestore does NOT delete them from Firebase Auth.
+                // This requires Admin SDK on a server environment.
                 await deleteDoc(doc(db, "users", userId));
                 alert('Pengguna berhasil dihapus dari database. Anda perlu menghapus user dari Firebase Authentication secara manual.');
                 loadUsers();
@@ -680,20 +833,20 @@ const firebaseConfig = {
 
     async function loadMateriForDosen() {
         const listContainer = document.getElementById('materiListDosen');
-        listContainer.innerHTML = 'Memuat materi...';
+        listContainer.innerHTML = '<p class="text-center text-muted">Memuat materi...</p>';
         const q = query(collection(db, "materi"), where("dosenId", "==", currentUserData.uid), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
         listContainer.innerHTML = '';
         if (snapshot.empty) {
-            listContainer.innerHTML = '<p class="text-muted">Anda belum menambahkan materi.</p>';
+            listContainer.innerHTML = '<p class="text-center text-muted">Anda belum menambahkan materi.</p>';
             return;
         }
         snapshot.forEach(doc => {
             const materi = doc.data();
             listContainer.innerHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                    ${materi.judul}
-                    <button class="btn btn-sm btn-danger" onclick="deleteMateri('${doc.id}')"><i class="bi bi-trash"></i></button>
+                    <span><i class="bi bi-file-earmark-text me-2"></i>${materi.judul}</span>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteMateri('${doc.id}')"><i class="bi bi-trash"></i></button>
                 </div>
             `;
         });
@@ -713,12 +866,12 @@ const firebaseConfig = {
         questionCount++;
         const container = document.getElementById('questionsContainer');
         const questionDiv = document.createElement('div');
-        questionDiv.className = 'card mb-3';
+        questionDiv.className = 'card mb-3 bg-light';
         questionDiv.innerHTML = `
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <h6>Pertanyaan ${questionCount}</h6>
-                    <button type="button" class="btn-close" onclick="this.parentElement.parentElement.parentElement.remove()"></button>
+                    <button type="button" class="btn-close" onclick="this.closest('.card').remove()"></button>
                 </div>
                 <textarea class="form-control mb-2" placeholder="Tulis pertanyaan di sini" required></textarea>
                 <div class="input-group mb-1"> <span class="input-group-text">A</span> <input type="text" class="form-control" placeholder="Pilihan A" required> </div>
@@ -726,7 +879,7 @@ const firebaseConfig = {
                 <div class="input-group mb-1"> <span class="input-group-text">C</span> <input type="text" class="form-control" placeholder="Pilihan C" required> </div>
                 <div class="input-group mb-2"> <span class="input-group-text">D</span> <input type="text" class="form-control" placeholder="Pilihan D" required> </div>
                 <select class="form-select form-select-sm" required>
-                    <option value="">-- Pilih Jawaban Benar --</option> <option value="0">Jawaban A</option> <option value="1">Jawaban B</option> <option value="2">Jawaban C</option> <option value="3">Jawaban D</option>
+                    <option value="" selected disabled>-- Pilih Jawaban Benar --</option> <option value="0">Jawaban A</option> <option value="1">Jawaban B</option> <option value="2">Jawaban C</option> <option value="3">Jawaban D</option>
                 </select>
             </div>
         `;
@@ -749,11 +902,13 @@ const firebaseConfig = {
             const questionText = qEl.querySelector('textarea').value;
             const options = Array.from(qEl.querySelectorAll('input[type="text"]')).map(input => input.value);
             const correctIndex = qEl.querySelector('select').value;
-            questions.push({ questionText, options, correctIndex });
+            if(questionText && options.every(o => o) && correctIndex) {
+                 questions.push({ questionText, options, correctIndex });
+            }
         });
         
         if (questions.length === 0) {
-            alert("Kuis harus memiliki setidaknya satu pertanyaan.");
+            alert("Kuis harus memiliki setidaknya satu pertanyaan yang valid.");
             return;
         }
 
@@ -776,20 +931,20 @@ const firebaseConfig = {
     
     async function loadKuisForDosen() {
         const listContainer = document.getElementById('kuisListDosen');
-        listContainer.innerHTML = 'Memuat kuis...';
+        listContainer.innerHTML = '<p class="text-center text-muted">Memuat kuis...</p>';
         const q = query(collection(db, "kuis"), where("dosenId", "==", currentUserData.uid), orderBy("createdAt", "desc"));
         const snapshot = await getDocs(q);
         listContainer.innerHTML = '';
         if (snapshot.empty) {
-            listContainer.innerHTML = '<p class="text-muted">Anda belum membuat kuis.</p>';
+            listContainer.innerHTML = '<p class="text-center text-muted">Anda belum membuat kuis.</p>';
             return;
         }
         snapshot.forEach(doc => {
             const kuis = doc.data();
             listContainer.innerHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                    ${kuis.judul} (${kuis.questions.length} soal)
-                    <button class="btn btn-sm btn-danger" onclick="deleteKuis('${doc.id}')"><i class="bi bi-trash"></i></button>
+                    <span><i class="bi bi-patch-question me-2"></i> ${kuis.judul} (${kuis.questions.length} soal)</span>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteKuis('${doc.id}')"><i class="bi bi-trash"></i></button>
                 </div>
             `;
         });
@@ -815,53 +970,53 @@ const firebaseConfig = {
 
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
-            
-            const questions = [];
-            const answerMap = {'A': '0', 'B': '1', 'C': '2', 'D': '3'};
-
-            for (const row of jsonData) {
-                const jawabanBenar = row.jawaban_benar?.toString().trim().toUpperCase();
-                if (!row.pertanyaan || !row.pilihan_a || !row.pilihan_b || !row.pilihan_c || !row.pilihan_d || !jawabanBenar) {
-                    alert(`Data tidak lengkap pada baris dengan pertanyaan: "${row.pertanyaan}". Pastikan semua kolom terisi.`);
-                    return;
-                }
-                if (!answerMap.hasOwnProperty(jawabanBenar)) {
-                    alert(`Format jawaban benar salah pada pertanyaan: "${row.pertanyaan}". Gunakan huruf A, B, C, atau D.`);
-                    return;
-                }
-                
-                questions.push({
-                    questionText: row.pertanyaan,
-                    options: [row.pilihan_a, row.pilihan_b, row.pilihan_c, row.pilihan_d],
-                    correctIndex: answerMap[jawabanBenar]
-                });
-            }
-
-            if (questions.length === 0) {
-                alert("Tidak ada pertanyaan valid yang ditemukan dalam file Excel.");
-                return;
-            }
-
-            const kuisData = {
-                judul: kuisJudul,
-                dosenId: currentUserData.uid,
-                dosenNama: currentUserData.nama,
-                questions: questions,
-                createdAt: Timestamp.now()
-            };
-
             try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                const questions = [];
+                const answerMap = {'A': '0', 'B': '1', 'C': '2', 'D': '3'};
+
+                for (const row of jsonData) {
+                    const jawabanBenar = row.jawaban_benar?.toString().trim().toUpperCase();
+                    if (!row.pertanyaan || !row.pilihan_a || !row.pilihan_b || !row.pilihan_c || !row.pilihan_d || !jawabanBenar) {
+                        alert(`Data tidak lengkap pada baris dengan pertanyaan: "${row.pertanyaan}". Pastikan semua kolom terisi.`);
+                        return;
+                    }
+                    if (!answerMap.hasOwnProperty(jawabanBenar)) {
+                        alert(`Format jawaban benar salah pada pertanyaan: "${row.pertanyaan}". Gunakan huruf A, B, C, atau D.`);
+                        return;
+                    }
+                    
+                    questions.push({
+                        questionText: String(row.pertanyaan),
+                        options: [String(row.pilihan_a), String(row.pilihan_b), String(row.pilihan_c), String(row.pilihan_d)],
+                        correctIndex: answerMap[jawabanBenar]
+                    });
+                }
+
+                if (questions.length === 0) {
+                    alert("Tidak ada pertanyaan valid yang ditemukan dalam file Excel.");
+                    return;
+                }
+
+                const kuisData = {
+                    judul: kuisJudul,
+                    dosenId: currentUserData.uid,
+                    dosenNama: currentUserData.nama,
+                    questions: questions,
+                    createdAt: Timestamp.now()
+                };
+
                 await addDoc(collection(db, "kuis"), kuisData);
                 alert(`Kuis "${kuisJudul}" dengan ${questions.length} pertanyaan berhasil diupload!`);
                 fileInput.value = ''; // Reset file input
                 loadKuisForDosen();
             } catch (error) {
-                alert('Gagal menyimpan kuis dari Excel: ' + error.message);
+                alert('Gagal memproses file Excel: ' + error.message);
             }
         };
         reader.readAsArrayBuffer(file);
@@ -888,39 +1043,39 @@ const firebaseConfig = {
     async function loadMahasiswaContent() {
         // Load Materi
         const materiContainer = document.getElementById('materiListMahasiswa');
-        materiContainer.innerHTML = 'Memuat...';
+        materiContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
         const materiQuery = query(collection(db, "materi"), orderBy("createdAt", "desc"));
         const materiSnapshot = await getDocs(materiQuery);
         materiContainer.innerHTML = '';
-        if (materiSnapshot.empty) materiContainer.innerHTML = '<p class="text-muted">Belum ada materi yang tersedia.</p>';
+        if (materiSnapshot.empty) materiContainer.innerHTML = '<p class="text-center text-muted">Belum ada materi yang tersedia.</p>';
         materiSnapshot.forEach(doc => {
             const materi = doc.data();
             materiContainer.innerHTML += `
                 <button type="button" class="list-group-item list-group-item-action" onclick="bacaMateri('${doc.id}')">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">${materi.judul}</h5>
+                        <h6 class="mb-1 text-dark">${materi.judul}</h6>
                     </div>
-                    <small>Oleh: ${materi.dosenNama}</small>
+                    <small class="text-muted"><i class="bi bi-person-fill"></i> Oleh: ${materi.dosenNama}</small>
                 </button>
             `;
         });
 
         // Load Kuis
         const kuisContainer = document.getElementById('kuisListMahasiswa');
-        kuisContainer.innerHTML = 'Memuat...';
+        kuisContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
         const kuisQuery = query(collection(db, "kuis"), orderBy("createdAt", "desc"));
         const kuisSnapshot = await getDocs(kuisQuery);
         kuisContainer.innerHTML = '';
-        if (kuisSnapshot.empty) kuisContainer.innerHTML = '<p class="text-muted">Belum ada kuis yang tersedia.</p>';
+        if (kuisSnapshot.empty) kuisContainer.innerHTML = '<p class="text-center text-muted">Belum ada kuis yang tersedia.</p>';
         kuisSnapshot.forEach(doc => {
             const kuis = doc.data();
              kuisContainer.innerHTML += `
-                <button type="button" class="list-group-item list-group-item-action list-group-item-warning" onclick="startKuis('${doc.id}')">
+                <button type="button" class="list-group-item list-group-item-action list-group-item-light" onclick="startKuis('${doc.id}')">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">${kuis.judul}</h5>
-                        <span class="badge bg-primary rounded-pill">${kuis.questions.length} Soal</span>
+                        <h6 class="mb-1 text-dark">${kuis.judul}</h6>
+                        <span class="badge rounded-pill text-bg-primary">${kuis.questions.length} Soal</span>
                     </div>
-                    <small>Oleh: ${kuis.dosenNama}</small>
+                    <small class="text-muted"><i class="bi bi-person-fill"></i> Oleh: ${kuis.dosenNama}</small>
                 </button>
             `;
         });
@@ -952,7 +1107,7 @@ const firebaseConfig = {
             
             currentKuisData.questions.forEach((q, index) => {
                 const optionsHTML = q.options.map((option, i) => `
-                    <div class="form-check">
+                    <div class="form-check fs-5 mb-2">
                         <input class="form-check-input" type="radio" name="question-${index}" id="q-${index}-o-${i}" value="${i}">
                         <label class="form-check-label" for="q-${index}-o-${i}"> ${option} </label>
                     </div>
@@ -960,8 +1115,9 @@ const firebaseConfig = {
 
                 container.innerHTML += `
                     <div class="card mb-3">
-                        <div class="card-body">
-                            <p class="card-text fw-bold">${index + 1}. ${q.questionText}</p>
+                        <div class="card-body p-4">
+                            <p class="card-text fw-bold fs-5">${index + 1}. ${q.questionText}</p>
+                            <hr>
                             ${optionsHTML}
                         </div>
                     </div>
@@ -972,25 +1128,31 @@ const firebaseConfig = {
         }
     }
 
-    document.getElementById('submitKuisBtn').addEventListener('click', async () => {
+    document.getElementById('submitKuisBtn').addEventListener('click', async (e) => {
         let score = 0;
         let answeredQuestions = 0;
+        const totalQuestions = currentKuisData.questions.length;
+
         currentKuisData.questions.forEach((q, index) => {
             const selected = document.querySelector(`input[name="question-${index}"]:checked`);
             if(selected) {
-                 answeredQuestions++;
+                answeredQuestions++;
                 if (selected.value === q.correctIndex) {
                     score++;
                 }
             }
         });
 
-        if (answeredQuestions < currentKuisData.questions.length) {
-            alert('Harap jawab semua pertanyaan terlebih dahulu!');
-            return;
+        if (answeredQuestions < totalQuestions) {
+            if (!confirm('Anda belum menjawab semua pertanyaan. Yakin ingin mengumpulkan?')) {
+                return;
+            }
         }
+        
+        const submitButton = e.target;
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...`;
 
-        const totalQuestions = currentKuisData.questions.length;
         const finalScore = Math.round((score / totalQuestions) * 100);
         
         // Simpan hasil pengerjaan ke koleksi baru 'kuisSubmissions'
@@ -1012,11 +1174,14 @@ const firebaseConfig = {
             totalSkor: increment(finalScore)
         });
 
-        alert(`Kuis Selesai!\nJawaban Benar: ${score} dari ${totalQuestions}\nAnda mendapatkan ${finalScore} poin!`);
+        alert(`Kuis Selesai!\n\nJawaban Benar: ${score} dari ${totalQuestions}\nAnda mendapatkan ${finalScore} poin baru!`);
 
         // Update skor di welcome message secara lokal
         currentUserData.totalSkor = (currentUserData.totalSkor || 0) + finalScore;
-        document.getElementById('mahasiswaWelcome').innerText = `Hai ${currentUserData.nama}, Poin Kamu: ${currentUserData.totalSkor}`;
+        document.getElementById('mahasiswaWelcome').innerHTML = `<i class="bi bi-gem"></i> Poin Kamu: <strong>${currentUserData.totalSkor}</strong>`;
+        
+        submitButton.disabled = false;
+        submitButton.innerHTML = `<i class="bi bi-check2-circle"></i> Selesai & Kumpulkan Jawaban`;
 
         showView('mahasiswa-view');
     });
