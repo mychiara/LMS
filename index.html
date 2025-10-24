@@ -260,7 +260,7 @@
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
-                                    <tr><th>Nama</th><th>Email</th><th>Role</th><th>NIM/NIDN</th><th>Prodi</th><th>Aksi</th></tr>
+                                    <tr><th>Nama</th><th>Email</th><th>Role</th><th>NIM/NIDN</th><th>Aksi</th></tr>
                                 </thead>
                                 <tbody id="userTableBody"></tbody>
                             </table>
@@ -272,9 +272,14 @@
                  <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title mb-3"><i class="bi bi-activity"></i> Aktivitas Pengerjaan Kuis Terbaru</h5>
-                        <ul id="recentSubmissionsList" class="list-group list-group-flush">
-                            <li class="list-group-item">Memuat aktivitas...</li>
-                        </ul>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th>Mahasiswa</th><th>Kuis</th><th>Skor</th></tr></thead>
+                                <tbody id="recentSubmissionsTable">
+                                    <tr><td colspan="3">Memuat aktivitas...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -301,8 +306,7 @@
                         <button class="btn btn-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#materiModal">
                             <i class="bi bi-file-earmark-plus"></i> Tambah Materi Baru
                         </button>
-                        <h6>Riwayat Materi Dibuat:</h6>
-                        <div id="materiListDosen" class="list-group mt-2"></div>
+                        <div id="materiListDosen" class="list-group"></div>
                     </div>
                 </div>
             </div>
@@ -325,12 +329,39 @@
                             </small>
                         </div>
                         <hr>
-                        <h6>Riwayat Kuis Dibuat:</h6>
-                        <div id="kuisListDosen" class="list-group mt-2"></div>
+                        <h6>Daftar Kuis Dibuat:</h6>
+                        <div id="kuisListDosen" class="list-group mt-3"></div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- [BARU] Riwayat Pengerjaan Kuis -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-4"><i class="bi bi-card-checklist"></i> Riwayat Pengerjaan Kuis oleh Mahasiswa</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nama Mahasiswa</th>
+                                        <th>Judul Kuis</th>
+                                        <th>Skor</th>
+                                        <th>Tanggal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dosenKuisHistoryList">
+                                    <tr><td colspan="4" class="text-center text-muted">Memuat riwayat...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- =================================================================== -->
@@ -345,7 +376,7 @@
             </div>
         </nav>
          <div class="row g-4">
-            <div class="col-lg-4 col-md-12">
+            <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-body p-4">
                         <h4 class="card-title mb-4">📚 Materi Perkuliahan</h4>
@@ -353,7 +384,7 @@
                     </div>
                 </div>
             </div>
-             <div class="col-lg-4 col-md-6">
+             <div class="col-md-6">
                 <div class="card h-100">
                     <div class="card-body p-4">
                         <h4 class="card-title mb-4">🚀 Kuis & Tantangan</h4>
@@ -361,11 +392,17 @@
                     </div>
                 </div>
             </div>
-             <div class="col-lg-4 col-md-6">
-                <div class="card h-100">
+        </div>
+
+        <!-- [BARU] Riwayat Pengerjaan Kuis Mahasiswa -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
                     <div class="card-body p-4">
-                        <h4 class="card-title mb-4">📜 Riwayat Pengerjaan Kuis</h4>
-                        <div id="riwayatKuisMahasiswa" class="list-group"></div>
+                        <h4 class="card-title mb-4"><i class="bi bi-clock-history"></i> Riwayat Pengerjaan Kuis Kamu</h4>
+                        <div id="mahasiswaKuisHistoryList" class="list-group">
+                            <p class="text-center text-muted">Memuat riwayat...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -414,8 +451,8 @@
                         <input type="email" class="form-control" id="userEmail" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Password (minimal 6 karakter)</label>
-                        <input type="password" class="form-control" id="userPassword" required>
+                        <label class="form-label">Password (kosongkan jika tidak ingin mengubah)</label>
+                        <input type="password" class="form-control" id="userPassword">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">NIM / NIDN</label>
@@ -427,10 +464,6 @@
                             <option value="mahasiswa">Mahasiswa</option>
                             <option value="dosen">Dosen</option>
                         </select>
-                    </div>
-                     <div class="mb-3" id="prodiFieldContainer">
-                        <label class="form-label">Program Studi (Prodi)</label>
-                        <input type="text" class="form-control" id="userProdi" placeholder="Contoh: D3 Keperawatan">
                     </div>
                     <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save"></i> Simpan</button>
                 </form>
@@ -577,17 +610,6 @@
         });
         document.getElementById(viewId).style.display = 'block';
     }
-
-    // Fungsi untuk format tanggal dari Firestore Timestamp
-    function formatTanggal(timestamp) {
-        if (!timestamp) return 'Tanggal tidak valid';
-        const date = timestamp.toDate();
-        return date.toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    }
     
     // ===================================================================
     // AUTHENTICATION & PAGE ROUTING LOGIC                               
@@ -602,7 +624,8 @@
                 switch (currentUserData.role) {
                     case 'admin':
                         showView('admin-view');
-                        loadAdminDashboard();
+                        loadAdminDashboardStats(); // Panggil fungsi dashboard admin
+                        loadUsers();
                         break;
                     case 'dosen':
                         showView('dosen-view');
@@ -662,7 +685,6 @@
     // ===================================================================
     async function loadLeaderboard() {
         const leaderboardList = document.getElementById('leaderboardList');
-        leaderboardList.innerHTML = '<li class="list-group-item">Memuat data peringkat...</li>';
         try {
             const q = query(
                 collection(db, "users"),
@@ -690,7 +712,7 @@
                             ${medalIcon}
                             <span class="fw-bold">${user.nama}</span>
                             <br>
-                            <small class="text-muted ms-4">Prodi: ${user.prodi || 'N/A'}</small>
+                            <small class="text-muted ms-4">NIM: ${user.nim_nidn}</small>
                         </div>
                         <span class="badge bg-primary rounded-pill leaderboard-badge">${user.totalSkor || 0} Poin</span>
                     </li>`;
@@ -706,12 +728,6 @@
     // ===================================================================
     // ADMIN DASHBOARD LOGIC                                             
     // ===================================================================
-    function loadAdminDashboard() {
-        loadAdminDashboardStats();
-        loadUsers();
-        loadRecentSubmissions();
-    }
-
     async function loadAdminDashboardStats() {
         // Get user counts
         const usersSnapshot = await getDocs(collection(db, "users"));
@@ -729,28 +745,26 @@
         const kuisSnapshot = await getDocs(collection(db, "kuis"));
         document.getElementById('totalMateriStat').innerText = materiSnapshot.size;
         document.getElementById('totalKuisStat').innerText = kuisSnapshot.size;
-    }
 
-    async function loadRecentSubmissions() {
         // Get recent submissions
-        const submissionsList = document.getElementById('recentSubmissionsList');
+        const submissionsTable = document.getElementById('recentSubmissionsTable');
         const submissionsQuery = query(collection(db, "kuisSubmissions"), orderBy("timestamp", "desc"), limit(5));
         const submissionsSnapshot = await getDocs(submissionsQuery);
-        submissionsList.innerHTML = '';
+        submissionsTable.innerHTML = '';
         if (submissionsSnapshot.empty) {
-            submissionsList.innerHTML = '<li class="list-group-item text-center text-muted">Belum ada aktivitas.</li>';
+            submissionsTable.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Belum ada aktivitas.</td></tr>';
             return;
         }
-        submissionsSnapshot.forEach(doc => {
+        submissionsSnapshot.forEach(async(doc) => {
             const sub = doc.data();
-            submissionsList.innerHTML += `
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold">${sub.mahasiswaNama}</span>
-                        <span class="badge bg-info">${sub.skorPersen}%</span>
-                    </div>
-                    <small class="text-muted">Mengerjakan kuis: ${sub.kuisJudul}</small>
-                </li>
+            const userDoc = await getDoc(doc(db, "users", sub.mahasiswaId));
+            const mahasiswaNama = userDoc.exists() ? userDoc.data().nama : "Mahasiswa Dihapus";
+            submissionsTable.innerHTML += `
+                <tr>
+                    <td>${mahasiswaNama}</td>
+                    <td>${sub.kuisJudul}</td>
+                    <td><span class="badge bg-info">${sub.skorPersen}%</span></td>
+                </tr>
             `;
         });
     }
@@ -758,7 +772,7 @@
     const userForm = document.getElementById('userForm');
     
     // Siapkan modal (kosongkan form atau isi dengan data)
-    window.prepareUserModal = function(mode, userId = null) {
+    window.prepareUserModal = async function(mode, userId = null) {
         userForm.reset();
         document.getElementById('userId').value = '';
         document.getElementById('userPassword').required = true;
@@ -766,14 +780,10 @@
         document.getElementById('userEmail').disabled = false;
     }
 
-    document.getElementById('userRole').addEventListener('change', (e) => {
-        document.getElementById('prodiFieldContainer').style.display = e.target.value === 'mahasiswa' ? 'block' : 'none';
-    });
-
     // Muat semua user ke tabel
     async function loadUsers() {
         const userTableBody = document.getElementById('userTableBody');
-        userTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Memuat...</td></tr>';
+        userTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Memuat...</td></tr>';
         const q = query(collection(db, "users"), where("role", "!=", "admin"));
         const querySnapshot = await getDocs(q);
         userTableBody.innerHTML = '';
@@ -785,7 +795,6 @@
                     <td>${user.email}</td>
                     <td><span class="badge rounded-pill text-bg-${user.role === 'dosen' ? 'success' : 'info'}">${user.role}</span></td>
                     <td>${user.nim_nidn}</td>
-                    <td>${user.prodi || '-'}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${doc.id}', '${user.nama}')"><i class="bi bi-trash"></i></button>
                     </td>
@@ -798,17 +807,12 @@
     userForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const userId = document.getElementById('userId').value;
-        const role = document.getElementById('userRole').value;
         const userData = {
             nama: document.getElementById('userName').value,
             email: document.getElementById('userEmail').value,
             nim_nidn: document.getElementById('userNim').value,
-            role: role,
+            role: document.getElementById('userRole').value,
         };
-
-        if (role === 'mahasiswa') {
-            userData.prodi = document.getElementById('userProdi').value;
-        }
         
         try {
             if (!userId) { // Hanya untuk user baru
@@ -824,7 +828,7 @@
             }
             userModal.hide();
             loadUsers();
-            loadAdminDashboardStats();
+            loadAdminDashboardStats(); // Refresh stats
         } catch (error) {
             alert('Gagal menyimpan pengguna: ' + error.message);
         }
@@ -839,7 +843,7 @@
                 await deleteDoc(doc(db, "users", userId));
                 alert('Pengguna berhasil dihapus dari database. Anda perlu menghapus user dari Firebase Authentication secara manual.');
                 loadUsers();
-                loadAdminDashboardStats();
+                loadAdminDashboardStats(); // Refresh stats
             } catch (error) {
                 alert('Gagal menghapus: ' + error.message);
             }
@@ -853,6 +857,7 @@
     async function loadDosenContent() {
         loadMateriForDosen();
         loadKuisForDosen();
+        loadDosenKuisHistory();
     }
     
     // -- Materi Logic --
@@ -885,11 +890,7 @@
             const materi = doc.data();
             listContainer.innerHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="bi bi-file-earmark-text me-2"></i> ${materi.judul}
-                        <br>
-                        <small class="text-muted ms-4">Dibuat: ${formatTanggal(materi.createdAt)}</small>
-                    </div>
+                    <span><i class="bi bi-file-earmark-text me-2"></i>${materi.judul}</span>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteMateri('${doc.id}')"><i class="bi bi-trash"></i></button>
                 </div>
             `;
@@ -987,11 +988,7 @@
             const kuis = doc.data();
             listContainer.innerHTML += `
                 <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <i class="bi bi-patch-question me-2"></i> ${kuis.judul} (${kuis.questions.length} soal)
-                        <br>
-                        <small class="text-muted ms-4">Dibuat: ${formatTanggal(kuis.createdAt)}</small>
-                    </div>
+                    <span><i class="bi bi-patch-question me-2"></i> ${kuis.judul} (${kuis.questions.length} soal)</span>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteKuis('${doc.id}')"><i class="bi bi-trash"></i></button>
                 </div>
             `;
@@ -1084,6 +1081,63 @@
         XLSX.writeFile(wb, "Template_Kuis_LMS.xlsx");
     });
 
+    // [BARU] Load Riwayat Kuis untuk Dosen
+    async function loadDosenKuisHistory() {
+        const historyContainer = document.getElementById('dosenKuisHistoryList');
+        historyContainer.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Memuat riwayat...</td></tr>';
+
+        try {
+            // 1. Get all quizzes made by this lecturer
+            const kuisQuery = query(collection(db, "kuis"), where("dosenId", "==", currentUserData.uid));
+            const kuisSnapshot = await getDocs(kuisQuery);
+
+            if (kuisSnapshot.empty) {
+                historyContainer.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Belum ada kuis yang dibuat. Riwayat akan muncul di sini.</td></tr>';
+                return;
+            }
+
+            const kuisIds = kuisSnapshot.docs.map(doc => doc.id);
+            
+            if (kuisIds.length === 0) {
+                historyContainer.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Belum ada riwayat pengerjaan kuis.</td></tr>';
+                return;
+            }
+
+            // 2. Get all submissions for those quizzes
+            const submissionsQuery = query(
+                collection(db, "kuisSubmissions"), 
+                where("kuisId", "in", kuisIds),
+                orderBy("timestamp", "desc")
+            );
+            const submissionsSnapshot = await getDocs(submissionsQuery);
+
+            if (submissionsSnapshot.empty) {
+                historyContainer.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Belum ada mahasiswa yang mengerjakan kuis Anda.</td></tr>';
+                return;
+            }
+            
+            historyContainer.innerHTML = '';
+            submissionsSnapshot.forEach(doc => {
+                const sub = doc.data();
+                const submissionDate = sub.timestamp.toDate().toLocaleDateString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                historyContainer.innerHTML += `
+                    <tr>
+                        <td>${sub.mahasiswaNama}</td>
+                        <td>${sub.kuisJudul}</td>
+                        <td><span class="badge bg-primary">${sub.skorPersen}%</span></td>
+                        <td>${submissionDate}</td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+            console.error("Error loading lecturer's quiz history: ", error);
+            historyContainer.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Gagal memuat riwayat.</td></tr>';
+        }
+    }
+
 
     // ===================================================================
     // MAHASISWA DASHBOARD LOGIC                                         
@@ -1091,17 +1145,16 @@
     async function loadMahasiswaContent() {
         loadMateriForMahasiswa();
         loadKuisForMahasiswa();
-        loadRiwayatKuisForMahasiswa();
+        loadMahasiswaKuisHistory();
     }
-    
+
     async function loadMateriForMahasiswa() {
-        // Load Materi
         const materiContainer = document.getElementById('materiListMahasiswa');
         materiContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
         const materiQuery = query(collection(db, "materi"), orderBy("createdAt", "desc"));
         const materiSnapshot = await getDocs(materiQuery);
         materiContainer.innerHTML = '';
-        if (materiSnapshot.empty) materiContainer.innerHTML = '<p class="text-center text-muted">Belum ada materi.</p>';
+        if (materiSnapshot.empty) materiContainer.innerHTML = '<p class="text-center text-muted">Belum ada materi yang tersedia.</p>';
         materiSnapshot.forEach(doc => {
             const materi = doc.data();
             materiContainer.innerHTML += `
@@ -1116,13 +1169,12 @@
     }
 
     async function loadKuisForMahasiswa() {
-        // Load Kuis
         const kuisContainer = document.getElementById('kuisListMahasiswa');
         kuisContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
         const kuisQuery = query(collection(db, "kuis"), orderBy("createdAt", "desc"));
         const kuisSnapshot = await getDocs(kuisQuery);
         kuisContainer.innerHTML = '';
-        if (kuisSnapshot.empty) kuisContainer.innerHTML = '<p class="text-center text-muted">Belum ada kuis.</p>';
+        if (kuisSnapshot.empty) kuisContainer.innerHTML = '<p class="text-center text-muted">Belum ada kuis yang tersedia.</p>';
         kuisSnapshot.forEach(doc => {
             const kuis = doc.data();
              kuisContainer.innerHTML += `
@@ -1136,31 +1188,49 @@
             `;
         });
     }
-
-    async function loadRiwayatKuisForMahasiswa() {
-        const riwayatContainer = document.getElementById('riwayatKuisMahasiswa');
-        riwayatContainer.innerHTML = '<p class="text-center text-muted">Memuat riwayat...</p>';
-        const q = query(collection(db, "kuisSubmissions"), where("mahasiswaId", "==", currentUserData.uid), orderBy("timestamp", "desc"));
-        const snapshot = await getDocs(q);
-        riwayatContainer.innerHTML = '';
-        if (snapshot.empty) {
-            riwayatContainer.innerHTML = '<p class="text-center text-muted">Anda belum mengerjakan kuis apapun.</p>';
-            return;
-        }
-        snapshot.forEach(doc => {
-            const sub = doc.data();
-            riwayatContainer.innerHTML += `
-                <div class="list-group-item">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">${sub.kuisJudul}</h6>
-                        <span class="badge text-bg-success">${sub.skorPersen}%</span>
-                    </div>
-                    <small class="text-muted">Dikerjakan pada: ${formatTanggal(sub.timestamp)}</small>
-                </div>
-            `;
-        });
-    }
     
+    // [BARU] Load Riwayat Kuis untuk Mahasiswa
+    async function loadMahasiswaKuisHistory() {
+        const historyContainer = document.getElementById('mahasiswaKuisHistoryList');
+        historyContainer.innerHTML = '<p class="text-center text-muted">Memuat riwayat...</p>';
+
+        try {
+            const q = query(
+                collection(db, "kuisSubmissions"),
+                where("mahasiswaId", "==", currentUserData.uid),
+                orderBy("timestamp", "desc")
+            );
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                historyContainer.innerHTML = '<p class="text-center text-muted">Kamu belum mengerjakan kuis apapun.</p>';
+                return;
+            }
+
+            historyContainer.innerHTML = '';
+            querySnapshot.forEach(doc => {
+                const sub = doc.data();
+                const submissionDate = sub.timestamp.toDate().toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                
+                historyContainer.innerHTML += `
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">${sub.kuisJudul}</h6>
+                            <span class="badge ${sub.skorPersen >= 75 ? 'bg-success' : 'bg-warning'} rounded-pill">${sub.skorPersen}%</span>
+                        </div>
+                        <small class="text-muted">Dikerjakan pada: ${submissionDate}</small>
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            console.error("Error loading student's quiz history: ", error);
+            historyContainer.innerHTML = '<p class="text-center text-danger">Gagal memuat riwayat pengerjaan.</p>';
+        }
+    }
+
     window.bacaMateri = async function(materiId) {
         const docRef = doc(db, "materi", materiId);
         const docSnap = await getDoc(docRef);
@@ -1262,9 +1332,9 @@
         
         submitButton.disabled = false;
         submitButton.innerHTML = `<i class="bi bi-check2-circle"></i> Selesai & Kumpulkan Jawaban`;
-        
-        loadRiwayatKuisForMahasiswa(); // Muat ulang riwayat setelah submit
+
         showView('mahasiswa-view');
+        loadMahasiswaKuisHistory(); // Muat ulang riwayat setelah submit
     });
 
 </script>
