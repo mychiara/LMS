@@ -769,8 +769,8 @@
             submissionsTable.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Belum ada aktivitas.</td></tr>';
             return;
         }
-        submissionsSnapshot.forEach(async(doc) => {
-            const sub = doc.data();
+        submissionsSnapshot.forEach(async(submissionDoc) => {
+            const sub = submissionDoc.data();
             const userDoc = await getDoc(doc(db, "users", sub.mahasiswaId));
             const mahasiswaNama = userDoc.exists() ? userDoc.data().nama : "Mahasiswa Dihapus";
             submissionsTable.innerHTML += `
