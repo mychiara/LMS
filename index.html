@@ -251,12 +251,25 @@
 
         <div class="row g-4">
             <div class="col-lg-7">
-                 <div class="card h-100">
+                <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title mb-3"><i class="bi bi-person-gear"></i> Manajemen Pengguna</h5>
                         <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal" onclick="prepareUserModal('new')">
-                            <i class="bi bi-plus-circle"></i> Tambah Pengguna
+                            <i class="bi bi-plus-circle"></i> Tambah Pengguna Manual
                         </button>
+                        
+                        <!-- [BARU] User Import Section -->
+                        <div class="excel-upload-box mb-3">
+                            <p class="mb-2 fw-bold">Atau, import pengguna dari file Excel:</p>
+                            <div class="input-group">
+                                 <input type="file" class="form-control" id="userExcelFile" accept=".xlsx, .xls, .csv">
+                                 <button class="btn btn-outline-success" type="button" id="importUsersBtn"><i class="bi bi-upload"></i> Import</button>
+                            </div>
+                             <small class="form-text text-muted mt-2 d-block">
+                                Pastikan format sesuai. <a href="#" id="downloadUserTemplateLink" class="fw-bold">Download Template</a>.
+                            </small>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
@@ -451,8 +464,9 @@
                         <input type="email" class="form-control" id="userEmail" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Password (kosongkan jika tidak ingin mengubah)</label>
-                        <input type="password" class="form-control" id="userPassword">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="userPassword" placeholder="Minimal 6 karakter">
+                        <small class="form-text text-muted">Saat mengedit, kosongkan jika tidak ingin mengubah password.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">NIM / NIDN</label>
@@ -771,16 +785,46 @@
 
     const userForm = document.getElementById('userForm');
     
-    // Siapkan modal (kosongkan form atau isi dengan data)
+    // [DIUBAH] Siapkan modal (kosongkan form untuk user baru, isi dengan data untuk edit)
     window.prepareUserModal = async function(mode, userId = null) {
         userForm.reset();
-        document.getElementById('userId').value = '';
-        document.getElementById('userPassword').required = true;
-        document.getElementById('userModalLabel').innerText = 'Tambah Pengguna Baru';
-        document.getElementById('userEmail').disabled = false;
+        const userModalLabel = document.getElementById('userModalLabel');
+        const userEmailInput = document.getElementById('userEmail');
+        const userPasswordInput = document.getElementById('userPassword');
+        document.getElementById('userId').value = userId || '';
+
+        if (mode === 'edit') {
+            userModalLabel.innerText = 'Edit Pengguna';
+            userEmailInput.disabled = true; // Email tidak bisa diubah karena terkait akun otentikasi
+            userPasswordInput.required = false;
+            userPasswordInput.placeholder = "Kosongkan jika tidak ingin mengubah";
+
+            try {
+                const userDoc = await getDoc(doc(db, "users", userId));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    document.getElementById('userName').value = data.nama;
+                    userEmailInput.value = data.email;
+                    document.getElementById('userNim').value = data.nim_nidn;
+                    document.getElementById('userRole').value = data.role;
+                    userModal.show();
+                } else {
+                    alert('Data pengguna tidak ditemukan.');
+                }
+            } catch (error) {
+                alert('Gagal memuat data pengguna: ' + error.message);
+            }
+        } else { // mode === 'new'
+            userModalLabel.innerText = 'Tambah Pengguna Baru';
+            userEmailInput.disabled = false;
+            userPasswordInput.required = true;
+            userPasswordInput.placeholder = "Minimal 6 karakter";
+            // Modal akan ditampilkan oleh atribut data-bs-toggle pada tombol
+        }
     }
 
-    // Muat semua user ke tabel
+
+    // [DIUBAH] Muat semua user ke tabel dengan tombol Edit dan Hapus
     async function loadUsers() {
         const userTableBody = document.getElementById('userTableBody');
         userTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Memuat...</td></tr>';
@@ -796,6 +840,7 @@
                     <td><span class="badge rounded-pill text-bg-${user.role === 'dosen' ? 'success' : 'info'}">${user.role}</span></td>
                     <td>${user.nim_nidn}</td>
                     <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="prepareUserModal('edit', '${doc.id}')"><i class="bi bi-pencil-square"></i></button>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${doc.id}', '${user.nama}')"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
@@ -803,10 +848,14 @@
         });
     }
 
-    // Handle submit form user (tambah/edit)
+    // [DIUBAH] Handle submit form user (tambah/edit)
     userForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const userId = document.getElementById('userId').value;
+        const password = document.getElementById('userPassword').value;
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
         const userData = {
             nama: document.getElementById('userName').value,
             email: document.getElementById('userEmail').value,
@@ -815,41 +864,144 @@
         };
         
         try {
-            if (!userId) { // Hanya untuk user baru
-                const password = document.getElementById('userPassword').value;
+            if (userId) { // Mode EDIT
+                const userRef = doc(db, "users", userId);
+                await updateDoc(userRef, {
+                    nama: userData.nama,
+                    nim_nidn: userData.nim_nidn,
+                    role: userData.role,
+                });
+                
+                if (password) {
+                    alert("Data pengguna (Nama, NIM/NIDN, Role) berhasil diperbarui.\n\nCATATAN: Perubahan password dari panel admin tidak dapat dilakukan karena alasan keamanan. Ini memerlukan Firebase Admin SDK di sisi server.");
+                } else {
+                    alert('Data pengguna berhasil diperbarui!');
+                }
+
+            } else { // Mode Tambah PENGGUNA BARU
                 if (password.length < 6) {
-                    alert("Password minimal 6 karakter!");
-                    return;
+                    throw new Error("Password minimal 6 karakter!");
                 }
                 const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
-                if (userData.role === 'mahasiswa') userData.totalSkor = 0;
-                await setDoc(doc(db, "users", userCredential.user.uid), userData);
+                const userPayload = { ...userData };
+                if (userPayload.role === 'mahasiswa') {
+                    userPayload.totalSkor = 0;
+                }
+                await setDoc(doc(db, "users", userCredential.user.uid), userPayload);
                 alert('Pengguna baru berhasil dibuat!');
             }
             userModal.hide();
             loadUsers();
-            loadAdminDashboardStats(); // Refresh stats
+            loadAdminDashboardStats();
         } catch (error) {
             alert('Gagal menyimpan pengguna: ' + error.message);
+        } finally {
+            submitButton.disabled = false;
         }
     });
+
 
     // Hapus User
     window.deleteUser = async function(userId, userName) {
         if (confirm(`Apakah Anda yakin ingin menghapus ${userName}? Aksi ini tidak dapat dibatalkan.`)) {
             try {
-                // NOTE: Deleting a user from Firestore does NOT delete them from Firebase Auth.
-                // This requires Admin SDK on a server environment.
                 await deleteDoc(doc(db, "users", userId));
-                alert('Pengguna berhasil dihapus dari database. Anda perlu menghapus user dari Firebase Authentication secara manual.');
+                alert('Pengguna berhasil dihapus dari database. Anda perlu menghapus user dari Firebase Authentication secara manual jika diperlukan.');
                 loadUsers();
-                loadAdminDashboardStats(); // Refresh stats
+                loadAdminDashboardStats();
             } catch (error) {
                 alert('Gagal menghapus: ' + error.message);
             }
         }
     }
 
+    // [BARU] Logika untuk Import Pengguna dari Excel
+    document.getElementById('downloadUserTemplateLink').addEventListener('click', (e) => {
+        e.preventDefault();
+        const templateData = [
+            ["nama", "email", "password", "nim_nidn", "role"],
+            ["Budi Santoso", "budi.mhs@email.com", "password123", "2101001", "mahasiswa"],
+            ["Citra Lestari", "citra.mhs@email.com", "password123", "2101002", "mahasiswa"],
+            ["Dr. Ahmad Dahlan", "ahmad.dosen@email.com", "dosenaman", "9901001", "dosen"]
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template Import Pengguna");
+        XLSX.writeFile(wb, "Template_Import_Pengguna.xlsx");
+    });
+
+    document.getElementById('importUsersBtn').addEventListener('click', async () => {
+        const fileInput = document.getElementById('userExcelFile');
+        const file = fileInput.files[0];
+        const btn = document.getElementById('importUsersBtn');
+
+        if (!file) {
+            alert('Silakan pilih file untuk diimport.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Mengimpor...`;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            let successCount = 0;
+            let failCount = 0;
+            let errorMessages = [];
+            
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const usersToImport = XLSX.utils.sheet_to_json(worksheet);
+
+                for (const user of usersToImport) {
+                    const email = user.email?.toString().trim();
+                    const password = user.password?.toString();
+                    const role = user.role?.toString().trim().toLowerCase();
+                    const nama = user.nama?.toString().trim();
+                    const nim_nidn = user.nim_nidn?.toString().trim();
+                    
+                    if (!nama || !email || !password || !nim_nidn || !role || password.length < 6 || !['mahasiswa', 'dosen'].includes(role)) {
+                        failCount++;
+                        errorMessages.push(`Baris untuk ${email || 'email kosong'} dilewati: data tidak valid atau tidak lengkap.`);
+                        continue;
+                    }
+
+                    try {
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        const userPayload = { nama, email, nim_nidn, role };
+                        if (role === 'mahasiswa') userPayload.totalSkor = 0;
+                        await setDoc(doc(db, "users", userCredential.user.uid), userPayload);
+                        successCount++;
+                    } catch (error) {
+                        failCount++;
+                        let msg = error.code === 'auth/email-already-in-use' ? 'email sudah terdaftar' : 'gagal membuat akun';
+                        errorMessages.push(`Gagal impor ${email}: ${msg}`);
+                    }
+                }
+
+                let summary = `Proses impor selesai.\n\nBerhasil: ${successCount} pengguna.\nGagal: ${failCount} pengguna.`;
+                if (errorMessages.length > 0) {
+                    summary += `\n\nDetail Kegagalan:\n- ${errorMessages.slice(0, 5).join('\n- ')}`;
+                    if (errorMessages.length > 5) summary += `\n- ...dan lainnya.`;
+                }
+                alert(summary);
+
+                loadUsers();
+                loadAdminDashboardStats();
+                fileInput.value = '';
+
+            } catch (error) {
+                alert('Gagal memproses file: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="bi bi-upload"></i> Import`;
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
 
     // ===================================================================
     // DOSEN DASHBOARD LOGIC                                             
