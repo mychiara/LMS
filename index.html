@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LMS Mahasiswa Poltekkes Kupang</title>
+    <title>LMS Gamifikasi Mahasiswa</title>
     <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -94,7 +94,6 @@
         #leaderboardList li:nth-child(2) .leaderboard-badge { background-color: #c0c0c0 !important; color: #333; }
         #leaderboardList li:nth-child(3) .leaderboard-badge { background-color: #cd7f32 !important; }
 
-
         /* Admin Dashboard Specific */
         .stat-card {
             display: flex;
@@ -144,14 +143,29 @@
         }
 
         /* Kuis View */
-        #kuis-view .card {
-            background-color: #fff;
-        }
         .form-check-input:checked {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
         }
-
+        
+        /* Badge/Lencana Style */
+        .badge-card {
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid var(--secondary-color);
+            opacity: 0.5; /* Lencana yang belum didapat */
+        }
+        .badge-card.unlocked {
+             opacity: 1;
+             background-color: #e9f5f3;
+             border-left-color: var(--primary-color);
+        }
+        .badge-card.unlocked .badge-icon {
+            color: var(--primary-color);
+        }
+        .badge-icon {
+            font-size: 3rem;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -250,7 +264,7 @@
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-7">
+            <div class="col-lg-12"> <!-- DIUBAH: Dibuat full width -->
                  <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title mb-3"><i class="bi bi-person-gear"></i> Manajemen Pengguna</h5>
@@ -263,21 +277,6 @@
                                     <tr><th>Nama</th><th>Email</th><th>Role</th><th>NIM/NIDN</th><th>Aksi</th></tr>
                                 </thead>
                                 <tbody id="userTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                 <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3"><i class="bi bi-activity"></i> Aktivitas Pengerjaan Kuis Terbaru</h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead><tr><th>Mahasiswa</th><th>Kuis</th><th>Skor</th></tr></thead>
-                                <tbody id="recentSubmissionsTable">
-                                    <tr><td colspan="3">Memuat aktivitas...</td></tr>
-                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -343,8 +342,10 @@
     <div id="mahasiswa-view" class="view">
         <nav class="navbar navbar-light bg-white rounded-3 mb-4 p-3 shadow-sm">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#"><i class="bi bi-easel2-fill"></i> Dashboard Mahasiswa</a>
+                <a class="navbar-brand" href="#"><i class="bi bi-easel2-fill"></i> Dashboard</a>
                  <span class="navbar-text text-primary me-auto ms-4" id="mahasiswaWelcome"></span>
+                 <!-- BARU: Tombol Profil -->
+                 <button class="btn btn-outline-primary me-2" onclick="showView('profil-view')"><i class="bi bi-person-circle"></i> Profil Saya</button>
                 <button id="logoutButtonMahasiswa" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</button>
             </div>
         </nav>
@@ -381,6 +382,64 @@
         </div>
         <div id="kuisQuestionContainer"></div>
         <button class="btn btn-primary btn-lg w-100 mt-4" id="submitKuisBtn"><i class="bi bi-check2-circle"></i> Selesai & Kumpulkan Jawaban</button>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- BARU: VIEW 6: HALAMAN PROFIL MAHASISWA                              -->
+    <!-- =================================================================== -->
+    <div id="profil-view" class="view">
+        <nav class="navbar navbar-light bg-white rounded-3 mb-4 p-3 shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="bi bi-person-badge-fill"></i> Profil & Pencapaian</a>
+                <button class="btn btn-outline-secondary" onclick="showView('mahasiswa-view')"><i class="bi bi-arrow-left"></i> Kembali ke Dashboard</button>
+            </div>
+        </nav>
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <i class="bi bi-person-circle" style="font-size: 5rem; color: var(--primary-color);"></i>
+                    </div>
+                    <div class="col">
+                        <h2 id="profilNama" class="mb-0">Nama Mahasiswa</h2>
+                        <p id="profilNim" class="text-muted fs-5">NIM Mahasiswa</p>
+                        <p id="profilEmail" class="text-muted">Email Mahasiswa</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="card bg-light border-0">
+                            <div class="card-body text-center">
+                                <p class="text-muted mb-1">Total Poin</p>
+                                <h2 class="mb-0" style="color: #333;" id="profilTotalSkor"><i class="bi bi-gem"></i> 0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <h4><i class="bi bi-award-fill"></i> Lencana & Pencapaian</h4>
+                <div id="profilBadgesContainer" class="row g-3 mt-2">
+                    <!-- Lencana akan dimuat di sini oleh JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- BARU: VIEW 7: HALAMAN REVIEW KUIS                                   -->
+    <!-- =================================================================== -->
+    <div id="review-view" class="view">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-3">
+                 <div class="d-flex justify-content-between align-items-center">
+                    <button class="btn btn-outline-secondary" onclick="showView('mahasiswa-view')"><i class="bi bi-arrow-left"></i> Kembali</button>
+                    <div>
+                        <h3 id="reviewKuisTitle" class="mb-0 text-center">Ulasan Kuis</h3>
+                        <p id="reviewKuisSkor" class="text-muted text-center mb-0">Skor Anda: 0</p>
+                    </div>
+                    <span id="reviewKuisBadge" class="badge bg-info p-2 fs-6">Hasil Akhir</span>
+                 </div>
+            </div>
+        </div>
+        <div id="reviewQuestionContainer"></div>
     </div>
 
 </main> <!-- End .container -->
@@ -513,6 +572,7 @@
         onAuthStateChanged, 
         signInWithEmailAndPassword,
         createUserWithEmailAndPassword,
+        updatePassword,
         signOut
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
     import { 
@@ -530,7 +590,8 @@
         orderBy,
         limit,
         increment,
-        Timestamp
+        Timestamp,
+        arrayUnion // <!-- BARU -->
     } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
     // ===================================================================
@@ -563,11 +624,16 @@
     const bacaMateriModal = new bootstrap.Modal(document.getElementById('bacaMateriModal'));
 
     // Fungsi untuk menampilkan view tertentu dan menyembunyikan yang lain
-    function showView(viewId) {
+    window.showView = function(viewId) { // <!-- DIUBAH: Ditempelkan ke window -->
         allViews.forEach(view => {
             view.style.display = 'none';
         });
         document.getElementById(viewId).style.display = 'block';
+
+        // BARU: Muat data profil jika view profil ditampilkan
+        if (viewId === 'profil-view') {
+            loadProfil();
+        }
     }
     
     // ===================================================================
@@ -583,7 +649,7 @@
                 switch (currentUserData.role) {
                     case 'admin':
                         showView('admin-view');
-                        loadAdminDashboardStats(); // Panggil fungsi dashboard admin
+                        loadAdminDashboardStats();
                         loadUsers();
                         break;
                     case 'dosen':
@@ -649,7 +715,7 @@
                 collection(db, "users"),
                 where("role", "==", "mahasiswa"),
                 orderBy("totalSkor", "desc"),
-                limit(5) // Tampilkan 5 teratas
+                limit(5)
             );
             const querySnapshot = await getDocs(q);
             leaderboardList.innerHTML = '';
@@ -704,36 +770,32 @@
         const kuisSnapshot = await getDocs(collection(db, "kuis"));
         document.getElementById('totalMateriStat').innerText = materiSnapshot.size;
         document.getElementById('totalKuisStat').innerText = kuisSnapshot.size;
-
-        // Get recent submissions
-        const submissionsTable = document.getElementById('recentSubmissionsTable');
-        const submissionsQuery = query(collection(db, "kuisSubmissions"), orderBy("timestamp", "desc"), limit(5));
-        const submissionsSnapshot = await getDocs(submissionsQuery);
-        submissionsTable.innerHTML = '';
-        if (submissionsSnapshot.empty) {
-            submissionsTable.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Belum ada aktivitas.</td></tr>';
-            return;
-        }
-        submissionsSnapshot.forEach(doc => {
-            const sub = doc.data();
-            submissionsTable.innerHTML += `
-                <tr>
-                    <td>${sub.mahasiswaNama}<br><small class="text-muted">${sub.kuisJudul}</small></td>
-                    <td><span class="badge bg-info">${sub.skorPersen}%</span></td>
-                </tr>
-            `;
-        });
     }
 
     const userForm = document.getElementById('userForm');
     
-    // Siapkan modal (kosongkan form atau isi dengan data)
+    // DIUBAH: Siapkan modal untuk 'new' atau 'edit'
     window.prepareUserModal = async function(mode, userId = null) {
         userForm.reset();
         document.getElementById('userId').value = '';
         document.getElementById('userPassword').required = true;
         document.getElementById('userModalLabel').innerText = 'Tambah Pengguna Baru';
         document.getElementById('userEmail').disabled = false;
+
+        if (mode === 'edit' && userId) {
+            document.getElementById('userModalLabel').innerText = 'Edit Pengguna';
+            const userDoc = await getDoc(doc(db, "users", userId));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('userId').value = userId;
+                document.getElementById('userName').value = userData.nama;
+                document.getElementById('userEmail').value = userData.email;
+                document.getElementById('userEmail').disabled = true; // Email tidak bisa diubah
+                document.getElementById('userNim').value = userData.nim_nidn;
+                document.getElementById('userRole').value = userData.role;
+                document.getElementById('userPassword').required = false; // Password opsional saat edit
+            }
+        }
     }
 
     // Muat semua user ke tabel
@@ -752,6 +814,8 @@
                     <td><span class="badge rounded-pill text-bg-${user.role === 'dosen' ? 'success' : 'info'}">${user.role}</span></td>
                     <td>${user.nim_nidn}</td>
                     <td>
+                        <!-- DIUBAH: Tombol Aksi -->
+                        <button class="btn btn-sm btn-outline-primary" onclick="prepareUserModal('edit', '${doc.id}')" data-bs-toggle="modal" data-bs-target="#userModal"><i class="bi bi-pencil-square"></i></button>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${doc.id}', '${user.nama}')"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
@@ -759,32 +823,41 @@
         });
     }
 
-    // Handle submit form user (tambah/edit)
+    // DIUBAH: Handle submit form user (tambah/edit)
     userForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const userId = document.getElementById('userId').value;
+        const password = document.getElementById('userPassword').value;
         const userData = {
             nama: document.getElementById('userName').value,
-            email: document.getElementById('userEmail').value,
             nim_nidn: document.getElementById('userNim').value,
             role: document.getElementById('userRole').value,
         };
         
         try {
-            if (!userId) { // Hanya untuk user baru
-                const password = document.getElementById('userPassword').value;
+            if (userId) { // Mode Edit
+                await updateDoc(doc(db, "users", userId), userData);
+                alert('Data pengguna berhasil diperbarui!');
+                // Note: Changing password in Auth for an existing user requires re-authentication, 
+                // which is complex client-side. A "forgot password" flow is better.
+                // We will skip password changes from admin panel for simplicity.
+            } else { // Mode Tambah Baru
+                userData.email = document.getElementById('userEmail').value;
                 if (password.length < 6) {
                     alert("Password minimal 6 karakter!");
                     return;
                 }
                 const userCredential = await createUserWithEmailAndPassword(auth, userData.email, password);
-                if (userData.role === 'mahasiswa') userData.totalSkor = 0;
+                if (userData.role === 'mahasiswa') {
+                     userData.totalSkor = 0;
+                     userData.badges = []; // Inisialisasi lencana
+                }
                 await setDoc(doc(db, "users", userCredential.user.uid), userData);
                 alert('Pengguna baru berhasil dibuat!');
             }
             userModal.hide();
             loadUsers();
-            loadAdminDashboardStats(); // Refresh stats
+            loadAdminDashboardStats();
         } catch (error) {
             alert('Gagal menyimpan pengguna: ' + error.message);
         }
@@ -799,7 +872,7 @@
                 await deleteDoc(doc(db, "users", userId));
                 alert('Pengguna berhasil dihapus dari database. Anda perlu menghapus user dari Firebase Authentication secara manual.');
                 loadUsers();
-                loadAdminDashboardStats(); // Refresh stats
+                loadAdminDashboardStats();
             } catch (error) {
                 alert('Gagal menghapus: ' + error.message);
             }
@@ -859,7 +932,7 @@
         }
     }
     
-    // -- Kuis Logic --
+    // -- Kuis Logic (DIUBAH UNTUK 5 OPSI) --
     let questionCount = 0;
     
     window.addQuestionField = function() {
@@ -877,9 +950,10 @@
                 <div class="input-group mb-1"> <span class="input-group-text">A</span> <input type="text" class="form-control" placeholder="Pilihan A" required> </div>
                 <div class="input-group mb-1"> <span class="input-group-text">B</span> <input type="text" class="form-control" placeholder="Pilihan B" required> </div>
                 <div class="input-group mb-1"> <span class="input-group-text">C</span> <input type="text" class="form-control" placeholder="Pilihan C" required> </div>
-                <div class="input-group mb-2"> <span class="input-group-text">D</span> <input type="text" class="form-control" placeholder="Pilihan D" required> </div>
+                <div class="input-group mb-1"> <span class="input-group-text">D</span> <input type="text" class="form-control" placeholder="Pilihan D" required> </div>
+                <div class="input-group mb-2"> <span class="input-group-text">E</span> <input type="text" class="form-control" placeholder="Pilihan E" required> </div>
                 <select class="form-select form-select-sm" required>
-                    <option value="" selected disabled>-- Pilih Jawaban Benar --</option> <option value="0">Jawaban A</option> <option value="1">Jawaban B</option> <option value="2">Jawaban C</option> <option value="3">Jawaban D</option>
+                    <option value="" selected disabled>-- Pilih Jawaban Benar --</option> <option value="0">Jawaban A</option> <option value="1">Jawaban B</option> <option value="2">Jawaban C</option> <option value="3">Jawaban D</option> <option value="4">Jawaban E</option>
                 </select>
             </div>
         `;
@@ -957,7 +1031,7 @@
         }
     }
 
-    // -- Kuis Upload Excel Logic --
+    // -- Kuis Upload Excel Logic (DIUBAH UNTUK 5 OPSI) --
     document.getElementById('uploadExcelBtn').addEventListener('click', () => {
         const fileInput = document.getElementById('excelFile');
         if (fileInput.files.length === 0) {
@@ -978,22 +1052,22 @@
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
                 const questions = [];
-                const answerMap = {'A': '0', 'B': '1', 'C': '2', 'D': '3'};
+                const answerMap = {'A': '0', 'B': '1', 'C': '2', 'D': '3', 'E': '4'};
 
                 for (const row of jsonData) {
                     const jawabanBenar = row.jawaban_benar?.toString().trim().toUpperCase();
-                    if (!row.pertanyaan || !row.pilihan_a || !row.pilihan_b || !row.pilihan_c || !row.pilihan_d || !jawabanBenar) {
-                        alert(`Data tidak lengkap pada baris dengan pertanyaan: "${row.pertanyaan}". Pastikan semua kolom terisi.`);
+                    if (!row.pertanyaan || !row.pilihan_a || !row.pilihan_b || !row.pilihan_c || !row.pilihan_d || !row.pilihan_e || !jawabanBenar) {
+                        alert(`Data tidak lengkap pada baris dengan pertanyaan: "${row.pertanyaan}". Pastikan semua kolom terisi (termasuk pilihan_e).`);
                         return;
                     }
                     if (!answerMap.hasOwnProperty(jawabanBenar)) {
-                        alert(`Format jawaban benar salah pada pertanyaan: "${row.pertanyaan}". Gunakan huruf A, B, C, atau D.`);
+                        alert(`Format jawaban benar salah pada pertanyaan: "${row.pertanyaan}". Gunakan huruf A, B, C, D, atau E.`);
                         return;
                     }
                     
                     questions.push({
                         questionText: String(row.pertanyaan),
-                        options: [String(row.pilihan_a), String(row.pilihan_b), String(row.pilihan_c), String(row.pilihan_d)],
+                        options: [String(row.pilihan_a), String(row.pilihan_b), String(row.pilihan_c), String(row.pilihan_d), String(row.pilihan_e)],
                         correctIndex: answerMap[jawabanBenar]
                     });
                 }
@@ -1022,13 +1096,13 @@
         reader.readAsArrayBuffer(file);
     });
 
-    // Download Template Excel
+    // Download Template Excel (DIUBAH UNTUK 5 OPSI)
     document.getElementById('downloadTemplateLink').addEventListener('click', (e) => {
         e.preventDefault();
         const templateData = [
-            ["pertanyaan", "pilihan_a", "pilihan_b", "pilihan_c", "pilihan_d", "jawaban_benar"],
-            ["Siapakah presiden pertama Indonesia?", "Joko Widodo", "Soekarno", "Soeharto", "B.J. Habibie", "B"],
-            ["Apa ibukota dari negara Jepang?", "Kyoto", "Osaka", "Tokyo", "Nagoya", "C"]
+            ["pertanyaan", "pilihan_a", "pilihan_b", "pilihan_c", "pilihan_d", "pilihan_e", "jawaban_benar"],
+            ["Siapakah presiden pertama Indonesia?", "Joko Widodo", "Soekarno", "Soeharto", "B.J. Habibie", "Megawati", "B"],
+            ["Apa ibukota dari negara Jepang?", "Kyoto", "Osaka", "Tokyo", "Nagoya", "Hiroshima", "C"]
         ];
         const ws = XLSX.utils.aoa_to_sheet(templateData);
         const wb = XLSX.utils.book_new();
@@ -1038,16 +1112,19 @@
 
 
     // ===================================================================
-    // MAHASISWA DASHBOARD LOGIC                                         
+    // MAHASISWA DASHBOARD LOGIC (DIUBAH TOTAL)
     // ===================================================================
     async function loadMahasiswaContent() {
-        // Load Materi
         const materiContainer = document.getElementById('materiListMahasiswa');
+        const kuisContainer = document.getElementById('kuisListMahasiswa');
         materiContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
+        kuisContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
+        
+        // 1. Load Materi
         const materiQuery = query(collection(db, "materi"), orderBy("createdAt", "desc"));
         const materiSnapshot = await getDocs(materiQuery);
         materiContainer.innerHTML = '';
-        if (materiSnapshot.empty) materiContainer.innerHTML = '<p class="text-center text-muted">Belum ada materi yang tersedia.</p>';
+        if (materiSnapshot.empty) materiContainer.innerHTML = '<p class="text-center text-muted">Belum ada materi.</p>';
         materiSnapshot.forEach(doc => {
             const materi = doc.data();
             materiContainer.innerHTML += `
@@ -1060,24 +1137,49 @@
             `;
         });
 
-        // Load Kuis
-        const kuisContainer = document.getElementById('kuisListMahasiswa');
-        kuisContainer.innerHTML = '<p class="text-center text-muted">Memuat...</p>';
+        // 2. Load Kuis dan cek status pengerjaan
         const kuisQuery = query(collection(db, "kuis"), orderBy("createdAt", "desc"));
         const kuisSnapshot = await getDocs(kuisQuery);
+        
+        const submissionsQuery = query(collection(db, "kuisSubmissions"), where("mahasiswaId", "==", currentUserData.uid));
+        const submissionsSnapshot = await getDocs(submissionsQuery);
+        
+        const submissionMap = new Map();
+        submissionsSnapshot.forEach(doc => {
+            submissionMap.set(doc.data().kuisId, { id: doc.id, ...doc.data() });
+        });
+
         kuisContainer.innerHTML = '';
-        if (kuisSnapshot.empty) kuisContainer.innerHTML = '<p class="text-center text-muted">Belum ada kuis yang tersedia.</p>';
+        if (kuisSnapshot.empty) kuisContainer.innerHTML = '<p class="text-center text-muted">Belum ada kuis.</p>';
         kuisSnapshot.forEach(doc => {
             const kuis = doc.data();
-             kuisContainer.innerHTML += `
-                <button type="button" class="list-group-item list-group-item-action list-group-item-light" onclick="startKuis('${doc.id}')">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1 text-dark">${kuis.judul}</h6>
-                        <span class="badge rounded-pill text-bg-primary">${kuis.questions.length} Soal</span>
-                    </div>
-                    <small class="text-muted"><i class="bi bi-person-fill"></i> Oleh: ${kuis.dosenNama}</small>
-                </button>
-            `;
+            const submission = submissionMap.get(doc.id);
+            
+            let actionButton;
+            if (submission) {
+                // Sudah dikerjakan
+                actionButton = `
+                    <button type="button" class="list-group-item list-group-item-action list-group-item-success" onclick="showKuisReview('${submission.id}')">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 text-dark"><i class="bi bi-check-circle-fill"></i> ${kuis.judul}</h6>
+                            <span class="badge rounded-pill text-bg-dark">${submission.skorPersen}%</span>
+                        </div>
+                        <small class="text-muted">Sudah dikerjakan. Klik untuk lihat ulasan.</small>
+                    </button>
+                `;
+            } else {
+                // Belum dikerjakan
+                actionButton = `
+                    <button type="button" class="list-group-item list-group-item-action list-group-item-light" onclick="startKuis('${doc.id}')">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 text-dark">${kuis.judul}</h6>
+                            <span class="badge rounded-pill text-bg-primary">${kuis.questions.length} Soal</span>
+                        </div>
+                        <small class="text-muted"><i class="bi bi-person-fill"></i> Oleh: ${kuis.dosenNama}</small>
+                    </button>
+                `;
+            }
+            kuisContainer.innerHTML += actionButton;
         });
     }
     
@@ -1132,21 +1234,23 @@
         let score = 0;
         let answeredQuestions = 0;
         const totalQuestions = currentKuisData.questions.length;
+        const answers = {}; // BARU: Simpan jawaban mahasiswa
 
         currentKuisData.questions.forEach((q, index) => {
             const selected = document.querySelector(`input[name="question-${index}"]:checked`);
             if(selected) {
                 answeredQuestions++;
+                answers[index] = selected.value; // Simpan pilihan
                 if (selected.value === q.correctIndex) {
                     score++;
                 }
+            } else {
+                answers[index] = null; // Tandai tidak dijawab
             }
         });
 
         if (answeredQuestions < totalQuestions) {
-            if (!confirm('Anda belum menjawab semua pertanyaan. Yakin ingin mengumpulkan?')) {
-                return;
-            }
+            if (!confirm('Anda belum menjawab semua pertanyaan. Yakin ingin mengumpulkan?')) return;
         }
         
         const submitButton = e.target;
@@ -1155,7 +1259,7 @@
 
         const finalScore = Math.round((score / totalQuestions) * 100);
         
-        // Simpan hasil pengerjaan ke koleksi baru 'kuisSubmissions'
+        // Simpan hasil pengerjaan (DIUBAH: Tambahkan `answers`)
         const submissionData = {
             mahasiswaId: currentUserData.uid,
             mahasiswaNama: currentUserData.nama,
@@ -1164,19 +1268,20 @@
             skorDapat: score,
             totalSoal: totalQuestions,
             skorPersen: finalScore,
+            answers: answers,
             timestamp: Timestamp.now()
         };
         await addDoc(collection(db, "kuisSubmissions"), submissionData);
         
-        // Update total skor mahasiswa di koleksi 'users'
+        // Update total skor mahasiswa
         const userDocRef = doc(db, "users", currentUserData.uid);
-        await updateDoc(userDocRef, {
-            totalSkor: increment(finalScore)
-        });
+        await updateDoc(userDocRef, { totalSkor: increment(finalScore) });
 
+        // BARU: Cek & berikan lencana
+        await checkAndAwardBadges(finalScore);
+        
         alert(`Kuis Selesai!\n\nJawaban Benar: ${score} dari ${totalQuestions}\nAnda mendapatkan ${finalScore} poin baru!`);
 
-        // Update skor di welcome message secara lokal
         currentUserData.totalSkor = (currentUserData.totalSkor || 0) + finalScore;
         document.getElementById('mahasiswaWelcome').innerHTML = `<i class="bi bi-gem"></i> Poin Kamu: <strong>${currentUserData.totalSkor}</strong>`;
         
@@ -1184,10 +1289,126 @@
         submitButton.innerHTML = `<i class="bi bi-check2-circle"></i> Selesai & Kumpulkan Jawaban`;
 
         showView('mahasiswa-view');
+        loadMahasiswaContent(); // Refresh daftar kuis
     });
+
+    // ===================================================================
+    // BARU: FUNGSI-FUNGSI BARU (REVIEW, PROFIL, BADGES)
+    // ===================================================================
+
+    // Tampilkan Ulasan Kuis
+    window.showKuisReview = async function(submissionId) {
+        const submissionDoc = await getDoc(doc(db, "kuisSubmissions", submissionId));
+        if (!submissionDoc.exists()) {
+            alert("Data pengerjaan tidak ditemukan!");
+            return;
+        }
+        const submission = submissionDoc.data();
+        
+        const kuisDoc = await getDoc(doc(db, "kuis", submission.kuisId));
+        if (!kuisDoc.exists()) {
+            alert("Data kuis asli tidak ditemukan!");
+            return;
+        }
+        const kuis = kuisDoc.data();
+
+        document.getElementById('reviewKuisTitle').innerText = kuis.judul;
+        document.getElementById('reviewKuisSkor').innerText = `Skor Anda: ${submission.skorPersen}% (${submission.skorDapat}/${submission.totalSoal} benar)`;
+        
+        const container = document.getElementById('reviewQuestionContainer');
+        container.innerHTML = '';
+
+        kuis.questions.forEach((q, index) => {
+            const userAnswerIndex = submission.answers[index];
+            const correctAnswerIndex = q.correctIndex;
+            
+            const optionsHTML = q.options.map((option, i) => {
+                let stateClass = '';
+                let icon = '';
+                if (i.toString() === correctAnswerIndex) {
+                    stateClass = 'list-group-item-success'; // Jawaban benar
+                    icon = '<i class="bi bi-check-circle-fill text-success"></i>';
+                }
+                if (i.toString() === userAnswerIndex && userAnswerIndex !== correctAnswerIndex) {
+                    stateClass = 'list-group-item-danger'; // Jawaban mahasiswa yang salah
+                    icon = '<i class="bi bi-x-circle-fill text-danger"></i>';
+                }
+                
+                return `<li class="list-group-item ${stateClass}">${String.fromCharCode(65+i)}. ${option} ${icon}</li>`;
+            }).join('');
+
+            container.innerHTML += `
+                <div class="card mb-3">
+                    <div class="card-body p-4">
+                        <p class="card-text fw-bold fs-5">${index + 1}. ${q.questionText}</p>
+                        <ul class="list-group mt-3">${optionsHTML}</ul>
+                    </div>
+                </div>
+            `;
+        });
+        showView('review-view');
+    }
+
+    // Definisi Lencana
+    const badgeDefinitions = {
+        'first_quiz': { title: 'Langkah Pertama', description: 'Menyelesaikan kuis pertamamu!', icon: 'bi-rocket-takeoff-fill' },
+        'perfect_score': { title: 'Jenius Sempurna', description: 'Mendapatkan skor 100% pada sebuah kuis.', icon: 'bi-star-fill' },
+    };
+
+    // Muat Halaman Profil
+    async function loadProfil() {
+        const userDoc = await getDoc(doc(db, "users", currentUserData.uid));
+        const user = userDoc.data();
+        
+        document.getElementById('profilNama').innerText = user.nama;
+        document.getElementById('profilNim').innerText = `NIM: ${user.nim_nidn}`;
+        document.getElementById('profilEmail').innerText = user.email;
+        document.getElementById('profilTotalSkor').innerHTML = `<i class="bi bi-gem"></i> ${user.totalSkor || 0}`;
+
+        const badgesContainer = document.getElementById('profilBadgesContainer');
+        badgesContainer.innerHTML = '';
+        const userBadges = user.badges || [];
+
+        for (const badgeId in badgeDefinitions) {
+            const badge = badgeDefinitions[badgeId];
+            const isUnlocked = userBadges.includes(badgeId);
+            
+            badgesContainer.innerHTML += `
+                <div class="col-md-6">
+                    <div class="card badge-card p-3 ${isUnlocked ? 'unlocked' : ''}">
+                        <div class="d-flex align-items-center">
+                            <div class="badge-icon me-3"><i class="bi ${badge.icon}"></i></div>
+                            <div>
+                                <h5 class="mb-0 ${isUnlocked ? '' : 'text-muted'}">${badge.title}</h5>
+                                <p class="mb-0 text-muted">${badge.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Cek dan berikan lencana
+    async function checkAndAwardBadges(currentScore) {
+        const userDocRef = doc(db, "users", currentUserData.uid);
+        
+        // Lencana 1: Kuis Pertama
+        const submissionsQuery = query(collection(db, "kuisSubmissions"), where("mahasiswaId", "==", currentUserData.uid), limit(2));
+        const submissionsSnapshot = await getDocs(submissionsQuery);
+        if (submissionsSnapshot.size === 1) { // Jika ini adalah satu-satunya submission
+            await updateDoc(userDocRef, { badges: arrayUnion('first_quiz') });
+            alert("Pencapaian Terbuka: Langkah Pertama! Kamu telah menyelesaikan kuis pertamamu.");
+        }
+
+        // Lencana 2: Skor Sempurna
+        if (currentScore === 100) {
+            await updateDoc(userDocRef, { badges: arrayUnion('perfect_score') });
+            alert("Pencapaian Terbuka: Jenius Sempurna! Kamu mendapat skor 100.");
+        }
+    }
 
 </script>
 
 </body>
 </html>
-
